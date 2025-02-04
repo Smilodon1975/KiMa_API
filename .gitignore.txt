@@ -1,0 +1,42 @@
+﻿# .gitignore für Visual Studio-Projekte
+
+# Build-Verzeichnisse
+bin/
+obj/
+
+# Benutzer-spezifische Dateien
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code-Verzeichnisse
+.vscode/
+
+# Visual Studio-Verzeichnisse
+.vs/
+
+# Paketverzeichnisse
+packages/
+*.nupkg
+*.snupkg
+
+# Log-Dateien
+*.log
+
+# Temporäre Dateien
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+
+# Backup-Dateien
+*.bak
+*.swp
+*.swo
+*.orig
+
+# Weitere spezifische Dateien
+*.vsidx

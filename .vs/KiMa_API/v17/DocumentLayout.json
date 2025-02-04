@@ -1,0 +1,45 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Smilodon\\Documents\\Projekt KiMa\\KiMa_API\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B2B69811-27EA-4B88-A142-B72012CAD892}|KiMa_API\\KiMa_API.csproj|c:\\users\\smilodon\\documents\\projekt kima\\kima_api\\kima_api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2B69811-27EA-4B88-A142-B72012CAD892}|KiMa_API\\KiMa_API.csproj|solutionrelative:kima_api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 240,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "C:\\Users\\Smilodon\\Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "KiMa_API\\Controllers\\UserController.cs",
+              "ToolTip": "C:\\Users\\Smilodon\\Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\Controllers\\UserController.cs",
+              "RelativeToolTip": "KiMa_API\\Controllers\\UserController.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-04T11:03:43.998Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
