@@ -11,16 +11,18 @@ namespace KiMa_API.Data
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var connectionString = configuration.GetConnectionString("SQLiteConnection")
+                               ?? "Data Source=KiMaDB.sqlite";
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();    
 
-            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            optionsBuilder.UseSqlite(connectionString);
 
             return new AppDbContext(optionsBuilder.Options);
         }
     }
 }
+
 

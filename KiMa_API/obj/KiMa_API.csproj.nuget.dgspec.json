@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Smilodon\\Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\KiMa_API.csproj": {}
+    "C:\\Users\\Smilodon\\Smilo-Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\KiMa_API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Smilodon\\Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\KiMa_API.csproj": {
+    "C:\\Users\\Smilodon\\Smilo-Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\KiMa_API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Smilodon\\Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\KiMa_API.csproj",
+        "projectUniqueName": "C:\\Users\\Smilodon\\Smilo-Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\KiMa_API.csproj",
         "projectName": "KiMa_API",
-        "projectPath": "C:\\Users\\Smilodon\\Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\KiMa_API.csproj",
+        "projectPath": "C:\\Users\\Smilodon\\Smilo-Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\KiMa_API.csproj",
         "packagesPath": "C:\\Users\\Smilodon\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Smilodon\\Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\obj\\",
+        "outputPath": "C:\\Users\\Smilodon\\Smilo-Documents\\Projekt KiMa\\KiMa_API\\KiMa_API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,15 +50,31 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.AspNetCore.Identity": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[9.0.2, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[9.0.2, )"
             },
             "Pomelo.EntityFrameworkCore.MySql": {
               "target": "Package",
@@ -67,6 +83,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[7.2.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.4.0, )"
             }
           },
           "imports": [
@@ -88,7 +108,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

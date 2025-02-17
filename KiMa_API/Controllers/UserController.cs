@@ -1,96 +1,101 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using KiMa_API.Data;
 using KiMa_API.Models;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace KiMa_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly UserManager<User> _userManager;
         private readonly AppDbContext _context;
 
-        public UserController(AppDbContext context)
+        public UserController(UserManager<User> userManager, AppDbContext context)
         {
+            _userManager = userManager;
             _context = context;
         }
 
-        // 🔹 GET: Alle Benutzer abrufen
+        // 🔹 Alle User abrufen (nur Admins)
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
         {
-            return await _context.Users.ToListAsync();
+            var users = await _userManager.Users.ToListAsync();
+            return Ok(users);
         }
 
-        // 🔹 GET: Benutzer nach ID abrufen
+
+        [Authorize]
+        [HttpGet("user-role")]
+        public async Task<IActionResult> GetUserRole()
+        {
+            Console.WriteLine("[DEBUG] `GetUserRole()` aufgerufen.");
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                Console.WriteLine("[ERROR] Kein Benutzer-Token gefunden!");
+                return Unauthorized("Kein Benutzer-Token gefunden.");
+            }
+
+            Console.WriteLine($"[DEBUG] Extrahierte Benutzer-ID: {userId}");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                Console.WriteLine($"[ERROR] Benutzer mit ID {userId} nicht gefunden!");
+                return NotFound("User nicht gefunden.");
+            }
+
+            Console.WriteLine($"[DEBUG] Ermittelte Benutzerrolle: {user.Role}");
+            return Ok(new { role = user.Role ?? "Proband" });
+        }
+
+
+
+
+
+
+        // 🔹 Einzelnen User abrufen (Admin: beliebig, User: nur eigene Daten)
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        [Authorize]
+        public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
-            {
-                return NotFound();
-            }
+                return NotFound("User nicht gefunden.");
 
-            return user;
+            if (userRole != "Admin" && user.Id != userId)
+                return Forbid(); // User dürfen nur ihre eigenen Daten sehen
+
+            return Ok(user);
         }
 
-        // 🔹 POST: Neuen Benutzer erstellen
-        [HttpPost]
-        public async Task<ActionResult<User>> CreateUser(User user)
+        [Authorize]
+        [HttpGet("me")] // 🔥 Neue Route für eigene User-Daten
+        public async Task<IActionResult> GetMyData()
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized("Kein Benutzer-Token gefunden.");
 
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == int.Parse(userId));
+            if (user == null) return NotFound("User nicht gefunden.");
+
+            return Ok(user);
         }
 
-        // 🔹 PUT: Benutzer aktualisieren
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, User user)
-        {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(user).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Users.Any(e => e.Id == id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // 🔹 DELETE: Benutzer löschen
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
     }
 }
+

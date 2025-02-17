@@ -1,22 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace KiMa_API.Models
 {
-    public class User
+    public class User : IdentityUser<int>  // IdentityUser verwaltet UserName & Email
     {
-        [Key]
-        public int Id { get; set; }
+        public string Role { get; set; } = "Proband"; // Standardmäßig Proband
+        public DateTime CreatedAt { get; set; }
+        // Zusätzliche Probanden-Daten
+        [Required, MaxLength(100)]
+        public string FirstName { get; set; }
 
         [Required, MaxLength(100)]
-        public string Username { get; set; }
+        public string LastName { get; set; }
 
-        [Required]
-        public string PasswordHash { get; set; } // Passwort wird verschlüsselt gespeichert
-
-        [Required]
-        public string Role { get; set; } // "Admin" oder "Proband"
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string? Phone { get; set; }
+        public int Age { get; set; }
     }
 }
-
