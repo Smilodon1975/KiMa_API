@@ -38,18 +38,47 @@ namespace KiMa_API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
+            Console.WriteLine("[DEBUG] Registrierung gestartet für " + model.Email);
+
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
+            {
+                Console.WriteLine("[ERROR] E-Mail bereits registriert: " + model.Email);
+                return BadRequest("Diese E-Mail wird bereits verwendet!");
+            }
+
             var user = new User
             {
-                UserName = model.Username,
                 Email = model.Email,
-                Role = model.Role
+                NormalizedEmail = model.Email.ToUpper(), // Normalized Email für Identity
+                FirstName = model.FirstName ?? "",
+                LastName = model.LastName ?? "",
+                Phone = model.Phone ?? "",
+                Age = model.Age,
+                CreatedAt = DateTime.UtcNow // Timestamp setzen
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+            try
+            {
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (!result.Succeeded)
+                {
+                    Console.WriteLine("[ERROR] Fehler beim Erstellen des Users:");
+                    foreach (var error in result.Errors)
+                    {
+                        Console.WriteLine($"- {error.Code}: {error.Description}");
+                    }
+                    return BadRequest(result.Errors);
+                }
 
-            return Ok("User erfolgreich registriert.");
+                Console.WriteLine("[SUCCESS] User erfolgreich registriert: " + model.Email);
+                return Ok(new { message = "User erfolgreich registriert." });
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[FATAL ERROR] Ausnahme aufgetreten: " + ex.Message);
+                return StatusCode(500, "Interner Serverfehler: " + ex.Message);
+            }
         }
 
         private string GenerateJwtToken(User user)
@@ -61,7 +90,7 @@ namespace KiMa_API.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Role, user.Role ?? "Proband")
             };
 
             var token = new JwtSecurityToken(

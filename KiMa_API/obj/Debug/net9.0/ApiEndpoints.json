@@ -111,6 +111,22 @@
   },
   {
     "ContainingType": "KiMa_API.Controllers.UserController",
+    "Method": "UpdateUser",
+    "RelativePath": "api/user/update",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userUpdateDto",
+        "Type": "KiMa_API.Controllers.UserUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.UserController",
     "Method": "GetUserRole",
     "RelativePath": "api/user/user-role",
     "HttpMethod": "GET",

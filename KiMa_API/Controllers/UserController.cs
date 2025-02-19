@@ -31,7 +31,6 @@ namespace KiMa_API.Controllers
             return Ok(users);
         }
 
-
         [Authorize]
         [HttpGet("user-role")]
         public async Task<IActionResult> GetUserRole()
@@ -58,11 +57,6 @@ namespace KiMa_API.Controllers
             return Ok(new { role = user.Role ?? "Proband" });
         }
 
-
-
-
-
-
         // 🔹 Einzelnen User abrufen (Admin: beliebig, User: nur eigene Daten)
         [HttpGet("{id}")]
         [Authorize]
@@ -71,7 +65,7 @@ namespace KiMa_API.Controllers
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
                 return NotFound("User nicht gefunden.");
 
@@ -88,14 +82,63 @@ namespace KiMa_API.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized("Kein Benutzer-Token gefunden.");
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == int.Parse(userId));
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound("User nicht gefunden.");
 
             return Ok(user);
         }
 
+        // 🔹 Benutzerdaten aktualisieren
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
+        {
+            var requestUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var requestUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            if (string.IsNullOrEmpty(requestUserId))
+            {
+                return Unauthorized(new { message = "Kein Benutzer-Token gefunden." });
+            }
 
+            var user = await _userManager.FindByIdAsync(userUpdateDto.Id.ToString());
+            if (user == null)
+            {
+                return NotFound(new { message = "Benutzer nicht gefunden." });
+            }
+
+            // Sicherheitsprüfung: User darf NUR eigene Daten ändern, außer ein Admin macht es
+            if (requestUserRole != "Admin" && user.Id.ToString() != requestUserId)
+            {
+                return Forbid();
+            }
+
+            // 🔹 Aktualisiere alle Felder
+            user.FirstName = userUpdateDto.FirstName;
+            user.LastName = userUpdateDto.LastName;
+            user.Phone = userUpdateDto.Phone;
+            user.Age = userUpdateDto.Age;
+            user.Address = userUpdateDto.Address;
+            user.BirthDate = userUpdateDto.BirthDate;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { message = "Fehler beim Speichern der Daten.", errors = result.Errors });
+            }
+
+            return Ok(new { message = "Änderungen erfolgreich gespeichert!", user });
+        }
+
+        public class UserUpdateDto
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Phone { get; set; }
+            public int Age { get; set; }
+            public string? Address { get; set; }
+            public DateTime? BirthDate { get; set; }
+        }
     }
 }
-

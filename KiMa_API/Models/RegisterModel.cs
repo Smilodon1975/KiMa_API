@@ -5,17 +5,21 @@ namespace KiMa_API.Models
     public class RegisterModel
     {
         [Required]
-        public string Username { get; set; } = null!;
+        public string FirstName { get; set; }
 
         [Required]
-        [EmailAddress]
-        public string Email { get; set; } = null!;
+        public string LastName { get; set; }
 
-        [Required]
-        [MinLength(6, ErrorMessage = "Passwort muss mindestens 6 Zeichen lang sein.")]
-        public string Password { get; set; } 
+        [Required, EmailAddress]
+        public string Email { get; set; }
 
-        public string Role { get; set; } = "Proband"; // Standardmäßig Proband
+        [Required, MinLength(6)]
+        public string Password { get; set; }
+
+        public string? Phone { get; set; }
+        public int Age { get; set; }
+       
+        public string? Address { get; set; }
+        public DateTime? BirthDate { get; set; }
     }
 }
-
