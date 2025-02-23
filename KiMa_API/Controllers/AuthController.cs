@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using KiMa_API.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using KiMa_API.Services;
+using System.Threading.Tasks;
 
 namespace KiMa_API.Controllers
 {
@@ -13,15 +11,16 @@ namespace KiMa_API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
-        private readonly IConfiguration _config;
+        private readonly AuthService _authService;  // 🛠 Fix: _authService hinzugefügt!
+        private readonly JwtService _jwtService;
 
-        public AuthController(UserManager<User> userManager, IConfiguration config)
+        public AuthController(UserManager<User> userManager, AuthService authService, JwtService jwtService)
         {
             _userManager = userManager;
-            _config = config;
+            _authService = authService;  // 🛠 Fix: Richtige Initialisierung!
+            _jwtService = jwtService;
         }
 
-        // 🔹 User-Login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -29,79 +28,17 @@ namespace KiMa_API.Controllers
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
                 return Unauthorized("Falsche E-Mail oder Passwort.");
 
-            var token = GenerateJwtToken(user);
-            Console.WriteLine($"Generated Token: {token}");
+            var token = _jwtService.GenerateJwtToken(user); // 👈 Token über Service generieren
             return Ok(new { token });
         }
 
-        // 🔹 User-Registrierung
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            Console.WriteLine("[DEBUG] Registrierung gestartet für " + model.Email);
+            var success = await _authService.RegisterAsync(model); // 🛠 Fix: Jetzt korrekt auf _authService zugreifen!
+            if (!success) return BadRequest("Registrierung fehlgeschlagen.");
 
-            if (await _userManager.FindByEmailAsync(model.Email) != null)
-            {
-                Console.WriteLine("[ERROR] E-Mail bereits registriert: " + model.Email);
-                return BadRequest("Diese E-Mail wird bereits verwendet!");
-            }
-
-            var user = new User
-            {
-                Email = model.Email,
-                NormalizedEmail = model.Email.ToUpper(), // Normalized Email für Identity
-                FirstName = model.FirstName ?? "",
-                LastName = model.LastName ?? "",
-                Phone = model.Phone ?? "",
-                Age = model.Age,
-                CreatedAt = DateTime.UtcNow // Timestamp setzen
-            };
-
-            try
-            {
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (!result.Succeeded)
-                {
-                    Console.WriteLine("[ERROR] Fehler beim Erstellen des Users:");
-                    foreach (var error in result.Errors)
-                    {
-                        Console.WriteLine($"- {error.Code}: {error.Description}");
-                    }
-                    return BadRequest(result.Errors);
-                }
-
-                Console.WriteLine("[SUCCESS] User erfolgreich registriert: " + model.Email);
-                return Ok(new { message = "User erfolgreich registriert." });
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("[FATAL ERROR] Ausnahme aufgetreten: " + ex.Message);
-                return StatusCode(500, "Interner Serverfehler: " + ex.Message);
-            }
-        }
-
-        private string GenerateJwtToken(User user)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role ?? "Proband")
-            };
-
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Issuer"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return Ok(new { message = "User erfolgreich registriert." });
         }
     }
 }

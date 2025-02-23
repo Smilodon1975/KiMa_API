@@ -6,6 +6,7 @@ using System.Text;
 using KiMa_API.Data;
 using KiMa_API.Models;
 using Microsoft.OpenApi.Models;
+using KiMa_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,6 +111,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<JwtService>();
+
 
 var app = builder.Build();
 
@@ -157,8 +163,7 @@ async Task SeedDatabase(UserManager<User> userManager, RoleManager<IdentityRole<
     if (await userManager.FindByEmailAsync("admin@example.com") == null)
     {
         var adminUser = new User
-        {
-            UserName = "MasterAdmin",
+        {            
             Email = "admin@example.com",
             Role = "Admin",
             FirstName = "Dieter",
@@ -175,8 +180,7 @@ async Task SeedDatabase(UserManager<User> userManager, RoleManager<IdentityRole<
     if (await userManager.FindByEmailAsync("proband@example.com") == null)
     {
         var probandUser = new User
-        {
-            UserName = "TestProband",
+        {            
             Email = "proband@example.com",
             Role = "Proband",
             FirstName = "Dieter",

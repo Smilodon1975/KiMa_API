@@ -23,8 +23,7 @@ namespace KiMa_API.Data
             // 🔹 Admin-Benutzer hinzufügen
             var adminUser = new User
             {
-                Id = 1,
-                UserName = "MasterAdmin",
+                Id = 1,                
                 Email = "admin@example.com",
                 NormalizedEmail = "ADMIN@EXAMPLE.COM",
                 Role = "Admin",

@@ -119,7 +119,7 @@
     "Parameters": [
       {
         "Name": "userUpdateDto",
-        "Type": "KiMa_API.Controllers.UserUpdateDto",
+        "Type": "KiMa_API.Controllers.UserController\u002BUserUpdateDto",
         "IsRequired": true
       }
     ],

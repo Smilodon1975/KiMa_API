@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KiMa_API.Data;
 using KiMa_API.Models;
+using KiMa_API.Services;
 
 namespace KiMa_API.Controllers
 {
@@ -12,44 +13,38 @@ namespace KiMa_API.Controllers
     [Authorize(Roles = "Admin")] // Nur Admins haben Zugriff
     public class AdminController : ControllerBase
     {
-        private readonly UserManager<User> _userManager;
-        private readonly AppDbContext _context;
+        private readonly IAdminService _adminService;
 
-        public AdminController(UserManager<User> userManager, AppDbContext context)
+        public AdminController(IAdminService adminService)
         {
-            _userManager = userManager;
-            _context = context;
+            _adminService = adminService;
         }
 
         // 🔹 Alle User abrufen
         [HttpGet("users")]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _userManager.Users.ToListAsync();
+            var users = await _adminService.GetAllUsersAsync();
             return Ok(users);
-        }        
-
-        // 🔹 Rolle setzen
-        [HttpPost("set-role")]
-        public async Task<IActionResult> SetUserRole([FromBody] SetRoleModel model)
-        {
-            var user = await _userManager.FindByIdAsync(model.UserId.ToString());
-            if (user == null) return NotFound("User nicht gefunden.");
-
-            user.Role = model.Role;
-            await _userManager.UpdateAsync(user);
-            return Ok("Rolle aktualisiert.");
         }
 
+       
         // 🔹 User löschen
-        [HttpDelete("delete-user/{userId}")]
-        public async Task<IActionResult> DeleteUser(int userId)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            if (user == null) return NotFound("User nicht gefunden.");
+            var success = await _adminService.DeleteUserAsync(id);
+            if (!success) return NotFound("Benutzer nicht gefunden oder konnte nicht gelöscht werden.");
+            return Ok("Benutzer erfolgreich gelöscht.");
+        }
+    
 
-            await _userManager.DeleteAsync(user);
-            return NoContent();
+    [HttpPut("set-role/{id}")]
+        public async Task<IActionResult> SetUserRole(int id, [FromBody] string newRole)
+        {
+            var success = await _adminService.SetUserRoleAsync(id, newRole);
+            if (!success) return NotFound("Benutzer nicht gefunden oder Fehler beim Setzen der Rolle.");
+            return Ok("Rolle erfolgreich aktualisiert.");
         }
     }
 

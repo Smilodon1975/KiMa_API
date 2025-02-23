@@ -1,144 +1,45 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using KiMa_API.Models; // <-- Importiere UserUpdateDto
+using KiMa_API.Services; // <-- Importiere UserService
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using KiMa_API.Data;
-using KiMa_API.Models;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace KiMa_API.Controllers
 {
-    [Route("api/user")]
     [ApiController]
+    [Route("api/user")]
     public class UserController : ControllerBase
     {
+        private readonly IUserService _userService;
         private readonly UserManager<User> _userManager;
-        private readonly AppDbContext _context;
 
-        public UserController(UserManager<User> userManager, AppDbContext context)
+        public UserController(IUserService userService, UserManager<User> userManager)
         {
+            _userService = userService;
             _userManager = userManager;
-            _context = context;
         }
 
-        // 🔹 Alle User abrufen (nur Admins)
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var users = await _userManager.Users.ToListAsync();
-            return Ok(users);
-        }
-
-        [Authorize]
-        [HttpGet("user-role")]
-        public async Task<IActionResult> GetUserRole()
-        {
-            Console.WriteLine("[DEBUG] `GetUserRole()` aufgerufen.");
-
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-            {
-                Console.WriteLine("[ERROR] Kein Benutzer-Token gefunden!");
-                return Unauthorized("Kein Benutzer-Token gefunden.");
-            }
-
-            Console.WriteLine($"[DEBUG] Extrahierte Benutzer-ID: {userId}");
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                Console.WriteLine($"[ERROR] Benutzer mit ID {userId} nicht gefunden!");
-                return NotFound("User nicht gefunden.");
-            }
-
-            Console.WriteLine($"[DEBUG] Ermittelte Benutzerrolle: {user.Role}");
-            return Ok(new { role = user.Role ?? "Proband" });
-        }
-
-        // 🔹 Einzelnen User abrufen (Admin: beliebig, User: nur eigene Daten)
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-                return NotFound("User nicht gefunden.");
-
-            if (userRole != "Admin" && user.Id != userId)
-                return Forbid(); // User dürfen nur ihre eigenen Daten sehen
-
-            return Ok(user);
+            var user = await _userService.GetUserByIdAsync(id);
+            return user == null ? NotFound("User nicht gefunden.") : Ok(user);
         }
 
-        [Authorize]
-        [HttpGet("me")] // 🔥 Neue Route für eigene User-Daten
-        public async Task<IActionResult> GetMyData()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized("Kein Benutzer-Token gefunden.");
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return NotFound("User nicht gefunden.");
-
-            return Ok(user);
-        }
-
-        // 🔹 Benutzerdaten aktualisieren
-        [Authorize]
         [HttpPut("update")]
+        [Authorize]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto userUpdateDto)
         {
-            var requestUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var requestUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var requestUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (string.IsNullOrEmpty(requestUserId))
-            {
-                return Unauthorized(new { message = "Kein Benutzer-Token gefunden." });
-            }
+            var success = await _userService.UpdateUserAsync(userUpdateDto, requestUserId, requestUserRole ?? "Proband");
+            if (!success) return BadRequest("Fehler beim Speichern der Daten.");
 
-            var user = await _userManager.FindByIdAsync(userUpdateDto.Id.ToString());
-            if (user == null)
-            {
-                return NotFound(new { message = "Benutzer nicht gefunden." });
-            }
-
-            // Sicherheitsprüfung: User darf NUR eigene Daten ändern, außer ein Admin macht es
-            if (requestUserRole != "Admin" && user.Id.ToString() != requestUserId)
-            {
-                return Forbid();
-            }
-
-            // 🔹 Aktualisiere alle Felder
-            user.FirstName = userUpdateDto.FirstName;
-            user.LastName = userUpdateDto.LastName;
-            user.Phone = userUpdateDto.Phone;
-            user.Age = userUpdateDto.Age;
-            user.Address = userUpdateDto.Address;
-            user.BirthDate = userUpdateDto.BirthDate;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-            {
-                return BadRequest(new { message = "Fehler beim Speichern der Daten.", errors = result.Errors });
-            }
-
-            return Ok(new { message = "Änderungen erfolgreich gespeichert!", user });
-        }
-
-        public class UserUpdateDto
-        {
-            public int Id { get; set; }
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public string Phone { get; set; }
-            public int Age { get; set; }
-            public string? Address { get; set; }
-            public DateTime? BirthDate { get; set; }
+            return Ok("Änderungen erfolgreich gespeichert!");
         }
     }
 }

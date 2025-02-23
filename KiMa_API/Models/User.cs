@@ -4,23 +4,34 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KiMa_API.Models
 {
-    public class User : IdentityUser<int>  // IdentityUser verwaltet UserName & Email
+    public class User : IdentityUser<int>
     {
         public string Role { get; set; } = "Proband"; // Standardmäßig Proband
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Zusätzliche Probanden-Daten
         [Required, MaxLength(100)]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty; // ✅ Fix: Standardwert gesetzt
 
         [Required, MaxLength(100)]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;  // ✅ Fix
 
-        public string? Phone { get; set; }
-        public int Age { get; set; }
+        public string? Title { get; set; } = null;
+        public string? Gender { get; set; } = null;
+        public string? Status { get; set; } = "active";
 
-        // 🔹 NEUE FELDER (falls benötigt)
-        public string? Address { get; set; }
-        public DateTime? BirthDate { get; set; }
+        // ✅ Mehrere Telefonnummern
+        public string? PhonePrivate { get; set; } = null;
+        public string? PhoneMobile { get; set; } = null;
+        public string? PhoneWork { get; set; } = null;
+
+        public int Age { get; set; } = 0;
+        public DateTime? BirthDate { get; set; } = null;
+
+        // ✅ Adresse aufgeteilt
+        public string? Street { get; set; } = null;
+        public string? Zip { get; set; } = null;
+        public string? City { get; set; } = null;
+        public string? Country { get; set; } = null;
     }
 }
+
