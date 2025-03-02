@@ -2,13 +2,13 @@
   {
     "ContainingType": "KiMa_API.Controllers.AdminController",
     "Method": "DeleteUser",
-    "RelativePath": "api/admin/delete-user/{userId}",
+    "RelativePath": "api/admin/delete/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "userId",
+        "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
       }
@@ -18,14 +18,19 @@
   {
     "ContainingType": "KiMa_API.Controllers.AdminController",
     "Method": "SetUserRole",
-    "RelativePath": "api/admin/set-role",
-    "HttpMethod": "POST",
+    "RelativePath": "api/admin/set-role/{id}",
+    "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "model",
-        "Type": "KiMa_API.Controllers.SetRoleModel",
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "newRole",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
@@ -33,7 +38,7 @@
   },
   {
     "ContainingType": "KiMa_API.Controllers.AdminController",
-    "Method": "GetUsers",
+    "Method": "GetAllUsers",
     "RelativePath": "api/admin/users",
     "HttpMethod": "GET",
     "IsController": true,
@@ -74,13 +79,35 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "KiMa_API.Controllers.UserController",
-    "Method": "GetAllUsers",
-    "RelativePath": "api/user",
-    "HttpMethod": "GET",
+    "ContainingType": "KiMa_API.Controllers.AuthController",
+    "Method": "RequestPasswordReset",
+    "RelativePath": "api/auth/request-password-reset",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "KiMa_API.Models.Dto.PasswordResetRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.AuthController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/auth/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "KiMa_API.Models.Dto.PasswordResetDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -97,6 +124,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.UserController",
+    "Method": "GetAllUsers",
+    "RelativePath": "api/user/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -118,8 +155,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "userUpdateDto",
-        "Type": "KiMa_API.Controllers.UserController\u002BUserUpdateDto",
+        "Name": "updateModel",
+        "Type": "KiMa_API.Models.Dto.UserUpdateModel",
         "IsRequired": true
       }
     ],

@@ -6,14 +6,18 @@ namespace KiMa_API.Models
 {
     public class User : IdentityUser<int>
     {
-        public string Role { get; set; } = "Proband"; // Standardmäßig Proband
+        public string Role { get; set; } = "Proband";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [Required, MaxLength(100)]
-        public string FirstName { get; set; } = string.Empty; // ✅ Fix: Standardwert gesetzt
+        [ MaxLength(100)]
+        public string FirstName { get; set; } = string.Empty; 
 
-        [Required, MaxLength(100)]
-        public string LastName { get; set; } = string.Empty;  // ✅ Fix
+        [ MaxLength(100)]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(50)] // Falls es Zeichenlimit gibt
+        public override string UserName { get; set; } = string.Empty;
 
         public string? Title { get; set; } = null;
         public string? Gender { get; set; } = null;

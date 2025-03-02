@@ -1,5 +1,6 @@
 ﻿using KiMa_API.Data;
 using KiMa_API.Models;
+using KiMa_API.Models.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -33,32 +34,39 @@ namespace KiMa_API.Services
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<bool> UpdateUserAsync(UserUpdateDto userUpdateDto, int requestUserId, string requestUserRole)
+        public async Task<bool> UpdateUserAsync(UserUpdateModel updateModel, int requestUserId, string requestUserRole)
         {
-            var user = await _userManager.FindByIdAsync(userUpdateDto.Id.ToString());
-            if (user == null) return false;
-
-            if (requestUserRole != "Admin" && user.Id != requestUserId)
+            var user = await _context.Users.FindAsync(updateModel.Id);
+            if (user == null)
                 return false;
 
-            user.FirstName = userUpdateDto.FirstName ?? user.FirstName;
-            user.LastName = userUpdateDto.LastName ?? user.LastName;
-            user.PhoneMobile = userUpdateDto.PhoneMobile ?? user.PhoneMobile;
-            user.PhonePrivate = userUpdateDto.PhonePrivate ?? user.PhonePrivate;
-            user.PhoneWork = userUpdateDto.PhoneWork ?? user.PhoneWork;
-            user.Age = userUpdateDto.Age ?? user.Age;
-            user.Street = userUpdateDto.Street ?? user.Street;
-            user.Zip = userUpdateDto.Zip ?? user.Zip;
-            user.City = userUpdateDto.City ?? user.City;
-            user.Country = userUpdateDto.Country ?? user.Country;
-            user.BirthDate = userUpdateDto.BirthDate ?? user.BirthDate;
-            user.Gender = userUpdateDto.Gender ?? user.Gender;
-            user.Title = userUpdateDto.Title ?? user.Title;
-            user.Status = userUpdateDto.Status ?? user.Status;
+            // Aktualisiere nur, wenn Werte übergeben wurden (damit nichts auf `null` gesetzt wird)
+            if (!string.IsNullOrWhiteSpace(updateModel.UserName)) user.UserName = updateModel.UserName;
+            if (!string.IsNullOrWhiteSpace(updateModel.Email)) user.Email = updateModel.Email;
+            if (!string.IsNullOrWhiteSpace(updateModel.FirstName)) user.FirstName = updateModel.FirstName;
+            if (!string.IsNullOrWhiteSpace(updateModel.LastName)) user.LastName = updateModel.LastName;
+            if (!string.IsNullOrWhiteSpace(updateModel.Title)) user.Title = updateModel.Title;
+            if (!string.IsNullOrWhiteSpace(updateModel.Gender)) user.Gender = updateModel.Gender;
+            if (!string.IsNullOrWhiteSpace(updateModel.Status)) user.Status = updateModel.Status;
 
-            var result = await _userManager.UpdateAsync(user);
-            return result.Succeeded;
+            if (!string.IsNullOrWhiteSpace(updateModel.PhonePrivate)) user.PhonePrivate = updateModel.PhonePrivate;
+            if (!string.IsNullOrWhiteSpace(updateModel.PhoneMobile)) user.PhoneMobile = updateModel.PhoneMobile;
+            if (!string.IsNullOrWhiteSpace(updateModel.PhoneWork)) user.PhoneWork = updateModel.PhoneWork;
+
+            if (updateModel.Age.HasValue) user.Age = updateModel.Age.Value;
+            if (updateModel.BirthDate.HasValue) user.BirthDate = updateModel.BirthDate.Value;
+
+            if (!string.IsNullOrWhiteSpace(updateModel.Street)) user.Street = updateModel.Street;
+            if (!string.IsNullOrWhiteSpace(updateModel.Zip)) user.Zip = updateModel.Zip;
+            if (!string.IsNullOrWhiteSpace(updateModel.City)) user.City = updateModel.City;
+            if (!string.IsNullOrWhiteSpace(updateModel.Country)) user.Country = updateModel.Country;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
+
     }
 }
 

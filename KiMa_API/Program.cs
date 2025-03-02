@@ -31,14 +31,21 @@ builder.Services.AddCors(options =>
 // 🔹 Identity für Benutzerverwaltung
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 {
+    // 🔐 Passwortregeln anpassen
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
+
+    // 🆔 Benutzername darf Sonderzeichen enthalten
+    options.User.AllowedUserNameCharacters =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+!#$%^&*()";
+    options.User.RequireUniqueEmail = true; // Falls erforderlich
 })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
 
 // 🔹 JWT-Authentifizierung
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -113,8 +120,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 
 
 var app = builder.Build();

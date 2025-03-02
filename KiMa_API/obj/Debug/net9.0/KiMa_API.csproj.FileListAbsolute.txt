@@ -444,3 +444,4 @@ C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\KiMa_API.pdb
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\KiMa_API.genruntimeconfig.cache
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\ref\KiMa_API.dll
+C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
