@@ -38,6 +38,27 @@
   },
   {
     "ContainingType": "KiMa_API.Controllers.AdminController",
+    "Method": "updateUser",
+    "RelativePath": "api/admin/update",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "userUpdate",
+        "Type": "KiMa_API.Models.Dto.UserUpdateModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.AdminController",
     "Method": "GetAllUsers",
     "RelativePath": "api/admin/users",
     "HttpMethod": "GET",

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using KiMa_API.Data;
+using Microsoft.AspNetCore.Identity;
 using KiMa_API.Models;
+using KiMa_API.Models.Dto;
 using KiMa_API.Services;
+using System.Threading.Tasks;
 
 namespace KiMa_API.Controllers
 {
@@ -14,10 +14,12 @@ namespace KiMa_API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly UserManager<User> _userManager;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, UserManager<User> userManager)
         {
             _adminService = adminService;
+            _userManager = userManager;
         }
 
         // 🔹 Alle User abrufen
@@ -46,11 +48,22 @@ namespace KiMa_API.Controllers
             if (!success) return NotFound("Benutzer nicht gefunden oder Fehler beim Setzen der Rolle.");
             return Ok("Rolle erfolgreich aktualisiert.");
         }
+    
+
+    [HttpPut("update")]
+    public async Task<IActionResult>updateUser(int id, [FromBody] UserUpdateModel userUpdate)
+        {
+            var success = await _adminService.UpdateUserAsync(userUpdate);
+            if (!success) return BadRequest(new { message = "Fehler beim Speichern der Änderungen." });
+
+return Ok(new { message = "Benutzer erfolgreich aktualisiert!" });
+        }
     }
+}
 
     public class SetRoleModel
     {
         public int UserId { get; set; }
         public string Role { get; set; }
     }
-}
+

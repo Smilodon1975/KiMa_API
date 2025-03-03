@@ -12,7 +12,7 @@ namespace KiMa_API.Models.Dto
         public string? UserName { get; set; }
 
         [EmailAddress(ErrorMessage = "Ungültige E-Mail-Adresse.")]
-        public string? Email { get; set; }
+        public string Email { get; set; }
 
         [StringLength(100)]
         public string? FirstName { get; set; }
@@ -37,5 +37,7 @@ namespace KiMa_API.Models.Dto
         public string? Zip { get; set; }
         public string? City { get; set; }
         public string? Country { get; set; }
+
+        public string? Role { get; set; }
     }
 }

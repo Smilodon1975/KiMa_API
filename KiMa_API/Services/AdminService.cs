@@ -2,6 +2,7 @@
 using KiMa_API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using KiMa_API.Models.Dto;
 
 namespace KiMa_API.Services
 {
@@ -36,6 +37,39 @@ namespace KiMa_API.Services
             if (user == null) return false;
 
             user.Role = newRole;
+            var result = await _userManager.UpdateAsync(user);
+            return result.Succeeded;
+        }
+
+        public async Task<bool> UpdateUserAsync(UserUpdateModel userUpdate)
+        {
+            var user = await _userManager.FindByIdAsync(userUpdate.Id.ToString());
+            if (user == null) return false;
+
+            // 🔹 Daten aktualisieren
+            user.UserName = userUpdate.UserName ?? user.UserName;
+            user.FirstName = userUpdate.FirstName ?? user.FirstName;
+            user.LastName = userUpdate.LastName ?? user.LastName;
+            user.Email = userUpdate.Email ?? user.Email;
+            user.Title = userUpdate.Title ?? user.Title;
+            user.Gender = userUpdate.Gender ?? user.Gender;
+            user.Status = userUpdate.Status ?? user.Status;
+            user.PhonePrivate = userUpdate.PhonePrivate ?? user.PhonePrivate;
+            user.PhoneMobile = userUpdate.PhoneMobile ?? user.PhoneMobile;
+            user.PhoneWork = userUpdate.PhoneWork ?? user.PhoneWork;
+            user.Age = userUpdate.Age ?? user.Age;
+            user.BirthDate = userUpdate.BirthDate ?? user.BirthDate;
+            user.Street = userUpdate.Street ?? user.Street;
+            user.Zip = userUpdate.Zip ?? user.Zip;
+            user.City = userUpdate.City ?? user.City;
+            user.Country = userUpdate.Country ?? user.Country;
+
+            // 🔹 Falls Rolle geändert wurde
+            if (!string.IsNullOrEmpty(userUpdate.Role) && user.Role != userUpdate.Role)
+            {
+                user.Role = userUpdate.Role;
+            }
+
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
