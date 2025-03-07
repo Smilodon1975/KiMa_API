@@ -3,9 +3,10 @@ using KiMa_API.Models.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
-
 namespace KiMa_API.Services
 {
+    
+    /// Service für die Authentifizierung, Benutzerregistrierung und Passwortverwaltung.    
     public class AuthService : IAuthService
     {
         private readonly UserManager<User> _userManager;
@@ -15,7 +16,8 @@ namespace KiMa_API.Services
         private readonly ILogger<AuthService> _logger;
 
         
-
+        /// Konstruktor zur Initialisierung des AuthService mit UserManager, JWT-Service, MailService und Logger.
+        
         public AuthService(UserManager<User> userManager, IConfiguration config, JwtService jwtService, IMailService mailService, ILogger<AuthService> logger)
         {
             _userManager = userManager;
@@ -25,6 +27,9 @@ namespace KiMa_API.Services
             _logger = logger;
         }
 
+       
+        /// Authentifiziert einen Benutzer anhand von E-Mail und Passwort und gibt ein JWT-Token zurück.       
+        /// <returns>Ein JWT-Token oder null, falls die Authentifizierung fehlschlägt.</returns>
         public async Task<string?> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -34,6 +39,9 @@ namespace KiMa_API.Services
             return _jwtService.GenerateJwtToken(user);
         }
 
+        
+        /// Registriert einen neuen Benutzer und speichert ihn in der Datenbank.        
+        /// <returns>Ein IdentityResult-Objekt, das den Erfolg oder Fehler der Registrierung enthält.</returns>
         public async Task<IdentityResult> RegisterAsync(RegisterModel model)
         {
             _logger.LogInformation($"DEBUG: Eingehender UserName = '{model.UserName}'");
@@ -52,11 +60,9 @@ namespace KiMa_API.Services
             return result;
         }
 
-
-
-
-
-        // 🔹 Erstellt einen Passwort-Reset-Token und sendet eine E-Mail
+        
+        /// Erstellt einen Passwort-Reset-Token und sendet es per E-Mail an den Benutzer.
+        /// <returns>Das generierte Reset-Token oder null, falls der Benutzer nicht gefunden wurde.</returns>
         public async Task<string> GeneratePasswordResetTokenAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -68,7 +74,9 @@ namespace KiMa_API.Services
             return token;
         }
 
-        // 🔹 Setzt das Passwort mit dem übergebenen Token zurück
+       
+        /// Setzt das Passwort eines Benutzers anhand eines Reset-Tokens zurück.   
+        /// <returns>True, wenn das Passwort erfolgreich zurückgesetzt wurde, andernfalls False.</returns>
         public async Task<bool> ResetPasswordAsync(PasswordResetDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -77,9 +85,5 @@ namespace KiMa_API.Services
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
             return result.Succeeded;
         }
-
-
-        
     }
 }
-

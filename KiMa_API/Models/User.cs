@@ -6,6 +6,7 @@ namespace KiMa_API.Models
 {
     public class User : IdentityUser<int>
     {
+        /// Erweiterte Benutzerklasse, die von `IdentityUser<int>` erbt und zusätzliche Eigenschaften enthält.
         public string Role { get; set; } = "Proband";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

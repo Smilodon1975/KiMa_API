@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace KiMa_API.Services
 {
+    // Service zum Versenden von E-Mails, speziell für Passwort-Reset-Anfragen.
     public class MailService : IMailService
     {
         private readonly IConfiguration _config;
@@ -14,6 +15,7 @@ namespace KiMa_API.Services
             _config = config;
         }
 
+        // Sendet eine E-Mail mit einem Passwort-Reset-Link an den angegebenen Empfänger.
         public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetToken)
         {
             var smtpServer = _config["EmailSettings:SmtpServer"];

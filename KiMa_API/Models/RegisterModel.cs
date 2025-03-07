@@ -3,6 +3,8 @@
 namespace KiMa_API.Models
 {
     public class RegisterModel
+
+    /// Modell für die Benutzerregistrierung mit E-Mail, Passwort und optionalem Benutzernamen.
     {
         [Required(ErrorMessage = "E-Mail ist erforderlich.")]
         [EmailAddress(ErrorMessage = "Ungültige E-Mail-Adresse.")]

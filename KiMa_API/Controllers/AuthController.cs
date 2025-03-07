@@ -8,6 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace KiMa_API.Controllers
 {
+ 
+    /// Der AuthController verwaltet die Authentifizierungsprozesse wie Login, Registrierung und Passwort-Reset.
+    
     [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -17,6 +20,9 @@ namespace KiMa_API.Controllers
         private readonly JwtService _jwtService;
         private readonly ILogger<AuthService> _logger;
 
+        
+        /// Konstruktor mit Dependency Injection für Benutzerverwaltung, Authentifizierungs- und JWT-Services.
+        
         public AuthController(UserManager<User> userManager, IAuthService authService, JwtService jwtService, ILogger<AuthService> logger)
         {
             _userManager = userManager;
@@ -25,6 +31,9 @@ namespace KiMa_API.Controllers
             _logger = logger;
         }
 
+      
+        /// Login für Benutzer. Prüft die Anmeldedaten und gibt ein JWT-Token zurück.
+       
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -32,67 +41,73 @@ namespace KiMa_API.Controllers
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
                 return Unauthorized("Falsche E-Mail oder Passwort.");
 
-            var token = _jwtService.GenerateJwtToken(user); // 👈 Token über Service generieren
+            var token = _jwtService.GenerateJwtToken(user); // Token für die Sitzung generieren
             return Ok(new { token });
         }
 
+        
+        /// Registriert einen neuen Benutzer und gibt eine Erfolgsmeldung zurück.
+        
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            _logger.LogInformation("DEBUG: Register-Endpoint wurde aufgerufen!");
+            _logger.LogInformation("Registrierungsversuch gestartet.");
 
+            // Validierung prüfen
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors)
-                                              .Select(e => e.ErrorMessage);
-                _logger.LogWarning("DEBUG: Validierungsfehler beim Registrieren!");
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                _logger.LogWarning("Registrierung fehlgeschlagen: Validierungsfehler.");
                 return BadRequest(new { message = "Validierungsfehler", errors });
             }
 
             var result = await _authService.RegisterAsync(model);
-
             if (result == null)
             {
-                _logger.LogError("DEBUG: _authService.RegisterAsync() hat null zurückgegeben!");
+                _logger.LogError("Fehler: Authentifizierungsservice hat null zurückgegeben.");
+                return StatusCode(500, "Interner Serverfehler.");
             }
 
+            // Falls Registrierung fehlschlägt, Fehler zurückgeben
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description);
-                _logger.LogError("DEBUG: Registrierung fehlgeschlagen!");
+                _logger.LogError("Registrierung fehlgeschlagen.");
                 foreach (var error in result.Errors)
                 {
-                    _logger.LogError($"DEBUG: {error.Code} - {error.Description}");
+                    _logger.LogError($"Fehler: {error.Code} - {error.Description}");
                 }
                 return BadRequest(new { message = "Registrierung fehlgeschlagen", errors });
             }
 
-            _logger.LogInformation("DEBUG: Registrierung erfolgreich!");
+            _logger.LogInformation("Registrierung erfolgreich.");
             return Ok(new { message = "Registrierung erfolgreich!" });
         }
 
-
-
+        
+        /// Fordert einen Passwort-Reset an und sendet einen Reset-Link.
+       
         [HttpPost("request-password-reset")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequestDto model)
         {
             var token = await _authService.GeneratePasswordResetTokenAsync(model.Email);
-            if (token == null) return NotFound("E-Mail nicht gefunden.");
+            if (token == null)
+                return NotFound("E-Mail nicht gefunden.");
 
             return Ok(new { message = "Passwort-Reset-Link wurde gesendet." });
         }
 
+       
+        /// Setzt das Passwort anhand des übergebenen Tokens zurück.
+        
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] PasswordResetDto model)
         {
             var success = await _authService.ResetPasswordAsync(model);
-            if (!success) return BadRequest("Passwort konnte nicht zurückgesetzt werden.");
+            if (!success)
+                return BadRequest("Passwort konnte nicht zurückgesetzt werden.");
 
             return Ok(new { message = "Passwort erfolgreich geändert!" });
         }
-
-
-
-
     }
 }

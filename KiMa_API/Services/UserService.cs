@@ -8,6 +8,7 @@ using static KiMa_API.Controllers.UserController;
 
 namespace KiMa_API.Services
 {
+    // Service für Benutzerverwaltung, einschließlich Datenabfrage und Aktualisierung.
     public class UserService : IUserService
     {
         private readonly UserManager<User> _userManager;
@@ -19,28 +20,32 @@ namespace KiMa_API.Services
             _context = context;
         }
 
+        // Ruft einen Benutzer anhand der ID ab.
         public async Task<User?> GetUserByIdAsync(int id)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
+        // Ruft die eigenen Benutzerdaten basierend auf der Anfrage-ID ab.
         public async Task<User?> GetMyDataAsync(int requestUserId)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == requestUserId);
         }
 
+        // Ruft eine Liste aller Benutzer ab.
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
             return await _context.Users.ToListAsync();
         }
 
+        // Aktualisiert die Benutzerdaten eines bestehenden Benutzers.
         public async Task<bool> UpdateUserAsync(UserUpdateModel updateModel, int requestUserId, string requestUserRole)
         {
             var user = await _context.Users.FindAsync(updateModel.Id);
             if (user == null)
                 return false;
 
-            // Aktualisiere nur, wenn Werte übergeben wurden (damit nichts auf `null` gesetzt wird)
+            // Aktualisiere nur Felder, die nicht null oder leer sind
             if (!string.IsNullOrWhiteSpace(updateModel.UserName)) user.UserName = updateModel.UserName;
             if (!string.IsNullOrWhiteSpace(updateModel.Email)) user.Email = updateModel.Email;
             if (!string.IsNullOrWhiteSpace(updateModel.FirstName)) user.FirstName = updateModel.FirstName;
@@ -66,7 +71,5 @@ namespace KiMa_API.Services
 
             return true;
         }
-
     }
 }
-

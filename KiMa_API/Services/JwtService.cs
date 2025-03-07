@@ -8,6 +8,7 @@ using System.Text;
 
 namespace KiMa_API.Services
 {
+    // Service zur Generierung von JWT-Tokens (JSON Web Token) für die Authentifizierung.
     public class JwtService
     {
         private readonly IConfiguration _config;
@@ -17,6 +18,7 @@ namespace KiMa_API.Services
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
+        // Erstellt ein JWT-Token für den angegebenen Benutzer.
         public string GenerateJwtToken(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
@@ -41,4 +43,3 @@ namespace KiMa_API.Services
         }
     }
 }
-
