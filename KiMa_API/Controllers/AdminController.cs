@@ -38,7 +38,7 @@ namespace KiMa_API.Controllers
             return Ok(users);
         }
 
-       
+
         /// Löscht einen Benutzer anhand der ID.        
         /// <returns>Eine Bestätigung oder eine Fehlermeldung</returns>
         [HttpDelete("delete/{id}")]
@@ -46,12 +46,13 @@ namespace KiMa_API.Controllers
         {
             var success = await _adminService.DeleteUserAsync(id);
             if (!success)
-                return NotFound("Benutzer nicht gefunden oder konnte nicht gelöscht werden.");
+                return NotFound(new { message = "Benutzer nicht gefunden oder konnte nicht gelöscht werden." });
 
-            return Ok("Benutzer erfolgreich gelöscht.");
+            return NoContent(); // 🔥 Ändere das von "Ok()" zu "NoContent()"
         }
 
-       
+
+
         /// Setzt eine neue Rolle für einen bestimmten Benutzer.        
         /// <param name="id">Die ID des Benutzers</param>
         /// <param name="newRole">Die neue Rolle, die zugewiesen werden soll</param>

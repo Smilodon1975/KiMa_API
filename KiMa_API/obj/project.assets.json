@@ -5358,5 +5358,17 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.103/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Das Paket \"Microsoft.AspNetCore.Identity\" 2.3.0 weist eine bekannte Hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-2865-hh9g-w894.",
+      "libraryId": "Microsoft.AspNetCore.Identity",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    }
+  ]
 }

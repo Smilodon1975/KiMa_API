@@ -30,7 +30,9 @@ namespace KiMa_API.Services
                 EnableSsl = true
             };
 
-            var resetLink = $"https://deine-app.com/reset-password?token={resetToken}";
+            var frontendUrl = "http://localhost:4200/reset-password";
+            var resetLink = $"{frontendUrl}?token={WebUtility.UrlEncode(resetToken)}&email={WebUtility.UrlEncode(toEmail)}";
+
             var mailMessage = new MailMessage
             {
                 From = new MailAddress(fromEmail),
@@ -43,6 +45,7 @@ namespace KiMa_API.Services
             try
             {
                 await client.SendMailAsync(mailMessage);
+                Console.WriteLine($"[INFO] Passwort-Reset-Mail an {toEmail} gesendet.");
                 return true;
             }
             catch (Exception ex)
@@ -50,6 +53,7 @@ namespace KiMa_API.Services
                 Console.WriteLine($"[ERROR] Mailversand fehlgeschlagen: {ex.Message}");
                 return false;
             }
+
         }
     }
 }

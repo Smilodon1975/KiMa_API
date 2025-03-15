@@ -66,6 +66,11 @@ namespace KiMa_API.Services
             if (!string.IsNullOrWhiteSpace(updateModel.City)) user.City = updateModel.City;
             if (!string.IsNullOrWhiteSpace(updateModel.Country)) user.Country = updateModel.Country;
 
+            if (!string.IsNullOrEmpty(updateModel.Password))
+            {
+                var passwordHasher = new PasswordHasher<User>();
+                user.PasswordHash = passwordHasher.HashPassword(user, updateModel.Password);
+            }
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 

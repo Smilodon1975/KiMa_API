@@ -82,6 +82,13 @@ namespace KiMa_API.Services
             user.City = userUpdate.City ?? user.City;
             user.Country = userUpdate.Country ?? user.Country;
 
+            if (!string.IsNullOrEmpty(userUpdate.Password))
+            {
+                var passwordHasher = new PasswordHasher<User>();
+                user.PasswordHash = passwordHasher.HashPassword(user, userUpdate.Password);
+            }
+
+
             // 🔹 Falls die Rolle geändert wurde, aktualisieren
             if (!string.IsNullOrEmpty(userUpdate.Role) && user.Role != userUpdate.Role)
             {

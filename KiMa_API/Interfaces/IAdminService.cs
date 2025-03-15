@@ -4,8 +4,7 @@ using KiMa_API.Models.Dto;
 namespace KiMa_API.Services
 {
  
-    /// Schnittstelle für administrative Benutzerverwaltungsfunktionen.
-  >
+    /// Schnittstelle für administrative Benutzerverwaltungsfunktionen.  
     public interface IAdminService
     {
      

@@ -37,7 +37,7 @@ namespace KiMa_API.Models.Dto
         public string? Zip { get; set; }
         public string? City { get; set; }
         public string? Country { get; set; }
-
         public string? Role { get; set; }
+        public string? Password { get; set; }
     }
 }

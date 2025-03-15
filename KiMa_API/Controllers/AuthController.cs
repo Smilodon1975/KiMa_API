@@ -97,17 +97,36 @@ namespace KiMa_API.Controllers
             return Ok(new { message = "Passwort-Reset-Link wurde gesendet." });
         }
 
-       
+
         /// Setzt das Passwort anhand des übergebenen Tokens zurück.
-        
+
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] PasswordResetDto model)
         {
-            var success = await _authService.ResetPasswordAsync(model);
-            if (!success)
-                return BadRequest("Passwort konnte nicht zurückgesetzt werden.");
+            Console.WriteLine($"[DEBUG] Reset-Anfrage für: {model.Email}");
+            Console.WriteLine($"[DEBUG] Token: {model.Token}");
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                Console.WriteLine($"[ERROR] Benutzer mit E-Mail {model.Email} nicht gefunden!");
+                return NotFound("Benutzer nicht gefunden.");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                Console.WriteLine($"[ERROR] Fehler beim Zurücksetzen des Passworts:");
+                foreach (var error in result.Errors)
+                {
+                    Console.WriteLine($" - {error.Description}");
+                }
+                return BadRequest(result.Errors);
+            }
 
             return Ok(new { message = "Passwort erfolgreich geändert!" });
         }
+
     }
 }

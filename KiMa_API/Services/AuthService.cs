@@ -1,6 +1,7 @@
 ﻿using KiMa_API.Models;
 using KiMa_API.Models.Dto;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace KiMa_API.Services
@@ -60,30 +61,76 @@ namespace KiMa_API.Services
             return result;
         }
 
-        
+
         /// Erstellt einen Passwort-Reset-Token und sendet es per E-Mail an den Benutzer.
         /// <returns>Das generierte Reset-Token oder null, falls der Benutzer nicht gefunden wurde.</returns>
         public async Task<string> GeneratePasswordResetTokenAsync(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return null;
+            Console.WriteLine($"[DEBUG] Passwort-Reset-Token für E-Mail: {email}");
 
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                Console.WriteLine("[ERROR] Benutzer nicht gefunden!");
+                return null;
+            }
+
+            // 🔹 Token generieren
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            Console.WriteLine($"[DEBUG] Generiertes Token: {token}");
+
+            // 🔹 Token in DB speichern
+            await _userManager.SetAuthenticationTokenAsync(user, "Default", "ResetPassword", token);
+
+            // 🔹 Debug-Check: Ist das Token wirklich in der DB?
+            var storedToken = await _userManager.GetAuthenticationTokenAsync(user, "Default", "ResetPassword");
+            Console.WriteLine($"[DEBUG] Token in DB gespeichert? {storedToken != null}");
+
+            // 🔹 Mail mit dem Token senden
             await _mailService.SendPasswordResetEmailAsync(email, token);
 
             return token;
         }
 
-       
+
+
+
         /// Setzt das Passwort eines Benutzers anhand eines Reset-Tokens zurück.   
         /// <returns>True, wenn das Passwort erfolgreich zurückgesetzt wurde, andernfalls False.</returns>
         public async Task<bool> ResetPasswordAsync(PasswordResetDto model)
         {
+            Console.WriteLine($"[DEBUG] Reset-Anfrage für E-Mail: {model.Email}");
+            Console.WriteLine($"[DEBUG] Erhaltenes Token: {model.Token}");
+            Console.WriteLine($"[DEBUG] Erhaltene Reset-Daten: Email={model.Email}, Token={model.Token}, NewPassword={model.NewPassword}");
+
+
             var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null) return false;
+            if (user == null)
+            {
+                Console.WriteLine("[ERROR] Benutzer nicht gefunden!");
+                return false;
+            }
+
+            var isValid = await _userManager.VerifyUserTokenAsync(user, _userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", model.Token);
+            if (!isValid)
+            {
+                Console.WriteLine("[ERROR] Token ist ungültig!");
+                return false;
+            }
 
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-            return result.Succeeded;
+            if (!result.Succeeded)
+            {
+                Console.WriteLine("[ERROR] Fehler beim Zurücksetzen des Passworts:");
+                foreach (var error in result.Errors)
+                {
+                    Console.WriteLine($" - {error.Description}");
+                }
+                return false;
+            }
+
+            return true;
         }
+
     }
 }

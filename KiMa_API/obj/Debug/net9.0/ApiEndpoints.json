@@ -38,7 +38,7 @@
   },
   {
     "ContainingType": "KiMa_API.Controllers.AdminController",
-    "Method": "updateUser",
+    "Method": "UpdateUser",
     "RelativePath": "api/admin/update",
     "HttpMethod": "PUT",
     "IsController": true,
