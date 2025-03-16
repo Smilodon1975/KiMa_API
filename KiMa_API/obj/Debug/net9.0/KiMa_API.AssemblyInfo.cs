@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KiMa_API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2c354f7a602dd2e2f3f1827e01c73b27952261c0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2142ba7299eb049002930774b8c23b3cc7a57fb7")]
 [assembly: System.Reflection.AssemblyProductAttribute("KiMa_API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KiMa_API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

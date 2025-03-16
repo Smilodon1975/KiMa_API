@@ -66,9 +66,9 @@ namespace KiMa_API.Services
 
             // 🔹 Benutzerdaten aktualisieren, falls neue Werte vorhanden sind
             user.UserName = userUpdate.UserName ?? user.UserName;
+            user.Email = userUpdate.Email ?? user.Email;            
             user.FirstName = userUpdate.FirstName ?? user.FirstName;
             user.LastName = userUpdate.LastName ?? user.LastName;
-            user.Email = userUpdate.Email ?? user.Email;
             user.Title = userUpdate.Title ?? user.Title;
             user.Gender = userUpdate.Gender ?? user.Gender;
             user.Status = userUpdate.Status ?? user.Status;
