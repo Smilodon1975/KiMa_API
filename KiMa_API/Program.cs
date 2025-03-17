@@ -36,7 +36,7 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
+    options.Password.RequiredLength = 8;
 
     // 🆔 Benutzername darf Sonderzeichen enthalten
     options.User.AllowedUserNameCharacters =
@@ -44,6 +44,7 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     options.User.RequireUniqueEmail = true; // Falls erforderlich
 })
     .AddEntityFrameworkStores<AppDbContext>()
+    .AddErrorDescriber<CustomIdentityErrorDescriber>()
     .AddDefaultTokenProviders();
 
 

@@ -8,13 +8,14 @@ namespace KiMa_API.Models
     {
         [Required(ErrorMessage = "E-Mail ist erforderlich.")]
         [EmailAddress(ErrorMessage = "Ungültige E-Mail-Adresse.")]
-        public string Email { get; set; }
+        public required string Email { get; set; }
+
 
 
 
         [Required(ErrorMessage = "Passwort ist erforderlich.")]
-        [MinLength(6, ErrorMessage = "Passwort muss mindestens 6 Zeichen lang sein.")]
-        public string Password { get; set; }
+        [MinLength(8, ErrorMessage = "Passwort muss mindestens 8 Zeichen lang sein.")]
+        public required string Password { get; set; }
 
 
         

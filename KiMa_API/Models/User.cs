@@ -18,8 +18,8 @@ namespace KiMa_API.Models
 
         [Required]
         [MaxLength(50)] // Falls es Zeichenlimit gibt
-        public override string UserName { get; set; } = string.Empty;   
-        
+        public override string UserName { get; set; } = string.Empty; 
+
         public string? Title { get; set; } = null;
         public string? Gender { get; set; } = null;
         public string? Status { get; set; } = "active";
