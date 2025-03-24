@@ -9,15 +9,14 @@ namespace KiMa_API.Services
     
     public interface IAuthService
     {
-      
-        /// Authentifiziert einen Benutzer anhand von E-Mail und Passwort.       
-        /// <returns>Ein JWT-Token als Zeichenkette oder null, falls die Anmeldung fehlschlägt.</returns>
-        Task<string?> LoginAsync(string email, string password);
-
-       
         /// Registriert einen neuen Benutzer mit den angegebenen Daten.
         /// <returns>Ein `IdentityResult`, das den Erfolg oder Fehler der Registrierung enthält.</returns>
         Task<IdentityResult> RegisterAsync(RegisterModel model);
+
+      
+        /// Authentifiziert einen Benutzer anhand von E-Mail und Passwort.       
+        /// <returns>Ein JWT-Token als Zeichenkette oder null, falls die Anmeldung fehlschlägt.</returns>
+        Task<string?> LoginAsync(string email, string password);      
 
       
         /// Erstellt ein Token zum Zurücksetzen des Passworts für einen Benutzer.

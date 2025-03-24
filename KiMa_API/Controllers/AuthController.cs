@@ -5,6 +5,7 @@ using KiMa_API.Services;
 using System.Threading.Tasks;
 using KiMa_API.Models.Dto;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 
 namespace KiMa_API.Controllers
 {
@@ -19,16 +20,18 @@ namespace KiMa_API.Controllers
         private readonly IAuthService _authService;
         private readonly JwtService _jwtService;
         private readonly ILogger<AuthService> _logger;
+        private readonly IMailService _mailService;
 
         
         /// Konstruktor mit Dependency Injection für Benutzerverwaltung, Authentifizierungs- und JWT-Services.
         
-        public AuthController(UserManager<User> userManager, IAuthService authService, JwtService jwtService, ILogger<AuthService> logger)
+        public AuthController(UserManager<User> userManager, IAuthService authService, JwtService jwtService, ILogger<AuthService> logger, IMailService mailService)
         {
             _userManager = userManager;
             _authService = authService;
             _jwtService = jwtService;
             _logger = logger;
+            _mailService = mailService;
         }
 
       
@@ -45,9 +48,9 @@ namespace KiMa_API.Controllers
             return Ok(new { token });
         }
 
-        
+
         /// Registriert einen neuen Benutzer und gibt eine Erfolgsmeldung zurück.
-        
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
@@ -59,6 +62,14 @@ namespace KiMa_API.Controllers
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
                 _logger.LogWarning("Registrierung fehlgeschlagen: Validierungsfehler.");
                 return BadRequest(new { message = "Validierungsfehler", errors });
+            }
+
+            // Manuelle E-Mail-Format-Prüfung
+            var emailValidator = new EmailAddressAttribute();
+            if (!emailValidator.IsValid(model.Email))
+            {
+                _logger.LogWarning("Registrierung fehlgeschlagen: Ungültige E-Mail-Adresse.");
+                return BadRequest(new { message = "Ungültige E-Mail-Adresse." });
             }
 
             var result = await _authService.RegisterAsync(model);
@@ -80,13 +91,64 @@ namespace KiMa_API.Controllers
                 return BadRequest(new { message = "Registrierung fehlgeschlagen", errors });
             }
 
+            // Registrierung war erfolgreich – nun Bestätigungs-Mail senden
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null)
+            {
+                var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                await _mailService.SendEmailConfirmationEmailAsync(user.Email, confirmationToken, user.UserName);
+            }
+
             _logger.LogInformation("Registrierung erfolgreich.");
-            return Ok(new { message = "Registrierung erfolgreich!" });
+            return Ok(new { message = "Registrierung erfolgreich! Bitte bestätige deine E-Mail-Adresse." });
         }
 
-        
+
+
+
+        [HttpGet("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
+        {
+            _logger.LogInformation($"ConfirmEmail aufgerufen mit Email: {email} und Token: {token}");
+
+            // Manuelles Decoding des Tokens und Wiederherstellen des Pluszeichens
+            var decodedToken = System.Net.WebUtility.UrlDecode(token);
+            // Ersetze Leerzeichen durch Pluszeichen, falls sie fälschlicherweise entstanden sind
+            decodedToken = decodedToken.Replace(" ", "+");
+            _logger.LogInformation($"Decoded Token: {decodedToken}");
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                _logger.LogError("Benutzer nicht gefunden.");
+                return NotFound("Benutzer nicht gefunden.");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("E-Mail erfolgreich bestätigt.");
+                return Ok("E-Mail erfolgreich bestätigt!");
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    _logger.LogError($"E-Mail-Bestätigung Fehler: {error.Code} - {error.Description}");
+                }
+                return BadRequest("E-Mail-Bestätigung fehlgeschlagen.");
+            }
+        }
+
+
+
+
+
+
+
+
         /// Fordert einen Passwort-Reset an und sendet einen Reset-Link.
-       
+
         [HttpPost("request-password-reset")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequestDto model)
         {
@@ -103,30 +165,22 @@ namespace KiMa_API.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] PasswordResetDto model)
         {
-            Console.WriteLine($"[DEBUG] Reset-Anfrage für: {model.Email}");
-            Console.WriteLine($"[DEBUG] Token: {model.Token}");
+            _logger.LogInformation($"[DEBUG] Reset-Anfrage für: {model.Email}");
+            _logger.LogInformation($"[DEBUG] Token: {model.Token}");
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+            // Statt direkt _userManager.ResetPasswordAsync aufzurufen,
+            // rufen wir die Methode im AuthService auf, die auch die Mail sendet.
+            var result = await _authService.ResetPasswordAsync(model);
+
+            if (!result)
             {
-                Console.WriteLine($"[ERROR] Benutzer mit E-Mail {model.Email} nicht gefunden!");
-                return NotFound("Benutzer nicht gefunden.");
-            }
-
-            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-
-            if (!result.Succeeded)
-            {
-                Console.WriteLine($"[ERROR] Fehler beim Zurücksetzen des Passworts:");
-                foreach (var error in result.Errors)
-                {
-                    Console.WriteLine($" - {error.Description}");
-                }
-                return BadRequest(result.Errors);
+                _logger.LogError("Fehler beim Zurücksetzen des Passworts oder Senden der Benachrichtigung.");
+                return BadRequest("Passwort konnte nicht zurückgesetzt werden.");
             }
 
             return Ok(new { message = "Passwort erfolgreich geändert!" });
         }
+
 
     }
 }

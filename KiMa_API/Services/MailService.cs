@@ -2,6 +2,7 @@
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
+using KiMa_API.Models;
 
 namespace KiMa_API.Services
 {
@@ -16,7 +17,7 @@ namespace KiMa_API.Services
         }
 
         // Sendet eine E-Mail mit einem Passwort-Reset-Link an den angegebenen Empfänger.
-        public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetToken)
+        public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetToken, string userName)
         {
             var smtpServer = _config["EmailSettings:SmtpServer"];
             var smtpPort = int.Parse(_config["EmailSettings:SmtpPort"]);
@@ -31,7 +32,9 @@ namespace KiMa_API.Services
             };
 
             var frontendUrl = "http://localhost:4200/reset-password";
-            var resetLink = $"{frontendUrl}?token={WebUtility.UrlEncode(resetToken)}&email={WebUtility.UrlEncode(toEmail)}";
+            var resetLink = $"{frontendUrl}?token={WebUtility.UrlEncode(resetToken)}" +
+                            $"&email={WebUtility.UrlEncode(toEmail)}" +
+                            $"&userName={WebUtility.UrlEncode(userName)}";
 
             var mailMessage = new MailMessage
             {
@@ -53,7 +56,99 @@ namespace KiMa_API.Services
                 Console.WriteLine($"[ERROR] Mailversand fehlgeschlagen: {ex.Message}");
                 return false;
             }
-
         }
+
+
+        public async Task<bool> SendEmailConfirmationEmailAsync(string toEmail, string confirmationToken, string userName)
+        {
+            var smtpServer = _config["EmailSettings:SmtpServer"];
+            var smtpPort = int.Parse(_config["EmailSettings:SmtpPort"]);
+            var smtpUsername = _config["EmailSettings:SmtpUsername"];
+            var smtpPassword = _config["EmailSettings:SmtpPassword"];
+            var fromEmail = _config["EmailSettings:FromEmail"];
+
+            using var client = new SmtpClient(smtpServer, smtpPort)
+            {
+                Credentials = new NetworkCredential(smtpUsername, smtpPassword),
+                EnableSsl = true
+            };
+
+            // Setze hier die URL deines Frontends, das die Bestätigung verarbeitet
+            var frontendUrl = "http://localhost:4200/confirm-email";
+            var confirmationLink = $"{frontendUrl}?token={WebUtility.UrlEncode(confirmationToken)}" +
+                                   $"&email={WebUtility.UrlEncode(toEmail)}" +
+                                   $"&userName={WebUtility.UrlEncode(userName)}";
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(fromEmail),
+                Subject = "E-Mail Bestätigung",
+                Body = $"<p>Hallo {userName},</p>" +
+                       $"<p>Bitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst:</p>" +
+                       $"<a href='{confirmationLink}'>E-Mail bestätigen</a>",
+                IsBodyHtml = true
+            };
+            mailMessage.To.Add(toEmail);
+
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+                Console.WriteLine($"[INFO] Bestätigungs-Mail an {toEmail} gesendet.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Bestätigungs-Mail Versand fehlgeschlagen: {ex.Message}");
+                return false;
+            }
+        }
+
+
+        public async Task<bool> SendPasswordChangedNotificationEmailAsync(string toEmail, string userName)
+        {
+            var smtpServer = _config["EmailSettings:SmtpServer"];
+            var smtpPort = int.Parse(_config["EmailSettings:SmtpPort"]);
+            var smtpUsername = _config["EmailSettings:SmtpUsername"];
+            var smtpPassword = _config["EmailSettings:SmtpPassword"];
+            var fromEmail = _config["EmailSettings:FromEmail"];
+
+            using var client = new SmtpClient(smtpServer, smtpPort)
+            {
+                Credentials = new NetworkCredential(smtpUsername, smtpPassword),
+                EnableSsl = true
+            };
+
+            var subject = "Dein Passwort wurde geändert";
+            var body = $"<p>Hallo {userName},</p>" +
+                       "<p>Dies ist eine Bestätigung, dass dein Passwort erfolgreich geändert wurde.</p>" +
+                       "<p>Falls du diese Änderung nicht veranlasst hast, kontaktiere bitte umgehend unseren Support.</p>" +
+                       "<p>Viele Grüße,<br/>Dein Team</p>";
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(fromEmail),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            };
+
+            mailMessage.To.Add(toEmail);
+
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+                Console.WriteLine($"[INFO] Passwort-Änderungs-Benachrichtigung an {toEmail} gesendet.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Passwort-Änderungs-Benachrichtigung konnte nicht gesendet werden: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
     }
 }
+

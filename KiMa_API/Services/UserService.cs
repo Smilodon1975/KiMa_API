@@ -76,5 +76,23 @@ namespace KiMa_API.Services
 
             return true;
         }
+
+        public async Task<bool> DeleteAccountAsync(int userId, string password)
+        {
+            // Benutzer über den UserManager abrufen (Convert int to string, falls nötig)
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+                return false;
+
+            // Überprüfe, ob das eingegebene Passwort korrekt ist
+            var passwordValid = await _userManager.CheckPasswordAsync(user, password);
+            if (!passwordValid)
+                return false;
+
+            // Lösche den Benutzer
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
+        }
+
     }
 }

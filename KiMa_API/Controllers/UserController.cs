@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using KiMa_API.Models.Dto;
 using Microsoft.Extensions.Logging;
 
+
 namespace KiMa_API.Controllers
 {
    
@@ -22,15 +23,17 @@ namespace KiMa_API.Controllers
         private readonly IUserService _userService;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<AuthService> _logger;
+        private readonly IMailService _mailService;
 
-       
+
         /// Konstruktor mit Dependency Injection für Benutzerverwaltung und Logging.
-       
-        public UserController(IUserService userService, UserManager<User> userManager, ILogger<AuthService> logger)
+
+        public UserController(IUserService userService, UserManager<User> userManager, ILogger<AuthService> logger, IMailService mailService)
         {
             _userService = userService;
             _userManager = userManager;
             _logger = logger;
+            _mailService = mailService;
         }
 
       
@@ -97,10 +100,10 @@ namespace KiMa_API.Controllers
             return user == null ? NotFound("User nicht gefunden.") : Ok(user);
         }
 
-        
+
         /// Aktualisiert die Benutzerdaten. Benutzer können nur ihre eigenen Daten ändern, 
         /// Admins können Änderungen für alle Benutzer durchführen.
-        
+
         [HttpPut("update")]
         [Authorize]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateModel updateModel)
@@ -109,9 +112,52 @@ namespace KiMa_API.Controllers
             var requestUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
             var success = await _userService.UpdateUserAsync(updateModel, requestUserId, requestUserRole ?? "Proband");
-            if (!success) return BadRequest("Fehler beim Speichern der Daten.");
+            if (!success)
+            {
+                return BadRequest("Fehler beim Speichern der Daten.");
+            }
+
+            // Wenn ein neues Passwort angegeben wurde, versende eine Benachrichtigungsemail
+            if (!string.IsNullOrWhiteSpace(updateModel.Password))
+            {
+                // Benutzer erneut abrufen, um Email und UserName zu erhalten
+                var user = await _userService.GetUserByIdAsync(requestUserId);
+                if (user != null)
+                {
+                    await _mailService.SendPasswordChangedNotificationEmailAsync(user.Email, user.UserName);
+                }
+            }
 
             return Ok(new { message = "Änderungen erfolgreich gespeichert!" });
         }
+
+
+        // Neuer Endpunkt zum Löschen des Accounts
+        [HttpPost("delete-account")]
+        public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountDto dto)
+        {
+            // Hole die User-ID aus den Claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            if (!int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return BadRequest("Ungültige Benutzer-ID.");
+            }
+
+            var result = await _userService.DeleteAccountAsync(userId, dto.Password);
+            if (result)
+            {
+                return Ok(new { message = "Account erfolgreich gelöscht." });
+            }
+            else
+            {
+                return BadRequest("Löschen des Accounts fehlgeschlagen. Überprüfe dein Passwort.");
+            }
+        }
+
     }
 }

@@ -29,5 +29,7 @@ namespace KiMa_API.Services
         /// Aktualisiert die Benutzerdaten eines bestehenden Benutzers.
         /// <returns>True, wenn die Aktualisierung erfolgreich war, andernfalls False.</returns>
         Task<bool> UpdateUserAsync(UserUpdateModel userUpdate, int requestUserId, string requestUserRole);
+
+        Task<bool> DeleteAccountAsync(int userId, string password);
     }
 }

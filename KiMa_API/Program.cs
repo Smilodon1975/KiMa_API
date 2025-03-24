@@ -40,12 +40,18 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 
     // 🆔 Benutzername darf Sonderzeichen enthalten
     options.User.AllowedUserNameCharacters =
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+!#$%^&*()";
-    options.User.RequireUniqueEmail = true; // Falls erforderlich
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+!#$%^&*()äöüÄÖÜß ";
+    options.User.RequireUniqueEmail = true;
 })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddErrorDescriber<CustomIdentityErrorDescriber>()
     .AddDefaultTokenProviders();
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    // Setzt die Gültigkeitsdauer des Tokens auf 1 Tag (du kannst das natürlich anpassen)
+    options.TokenLifespan = TimeSpan.FromDays(1);
+});
+
 
 
 // 🔹 JWT-Authentifizierung

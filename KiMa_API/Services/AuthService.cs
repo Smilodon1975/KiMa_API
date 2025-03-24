@@ -81,10 +81,12 @@ namespace KiMa_API.Services
             var storedToken = await _userManager.GetAuthenticationTokenAsync(user, "Default", "ResetPassword");
             _logger.LogInformation($"[DEBUG] Token in DB gespeichert? {storedToken != null}");
 
-            await _mailService.SendPasswordResetEmailAsync(email, token);
+            // Hier wird nun der Benutzername mitgegeben:
+            await _mailService.SendPasswordResetEmailAsync(email, token, user.UserName);
 
             return token;
         }
+
 
 
 
@@ -127,8 +129,23 @@ namespace KiMa_API.Services
                 return false;
             }
 
+            _logger.LogInformation("[DEBUG] Passwort erfolgreich zurückgesetzt, versende Benachrichtigungsmail...");
+
+            // Sende Benachrichtigung, dass das Passwort geändert wurde
+            var mailResult = await _mailService.SendPasswordChangedNotificationEmailAsync(user.Email, user.UserName);
+            if (mailResult)
+            {
+                _logger.LogInformation("[DEBUG] Benachrichtigungsmail wurde erfolgreich versendet.");
+            }
+            else
+            {
+                _logger.LogError("[ERROR] Beim Versenden der Benachrichtigungsmail ist ein Fehler aufgetreten.");
+            }
+
             return true;
         }
+
+
 
     }
 }
