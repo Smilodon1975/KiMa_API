@@ -122,6 +122,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 
 // 🔹 Controller & Swagger aktivieren
+builder.Services.AddScoped<FAQService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -130,6 +131,7 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
 
 
 

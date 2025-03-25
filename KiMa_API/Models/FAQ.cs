@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KiMa_API.Models
 {
@@ -14,6 +15,7 @@ namespace KiMa_API.Models
         public string Answer { get; set; }
 
         // Optional: Sortierreihenfolge, Kategorie, etc.
+        [Column("SortOrder")]
         public int Order { get; set; }
     }
 }
