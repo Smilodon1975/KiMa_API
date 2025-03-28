@@ -8,14 +8,14 @@ using System.Collections.Generic;
 
 namespace KiMa_API.Controllers
 {
-    [Route("api/faq")]
     [ApiController]
+    [Route("api/faq")]
     [Authorize(Roles = "Admin")] // Nur Admins dürfen FAQ bearbeiten
     public class FAQController : ControllerBase
     {
-        private readonly FAQService _faqService;
+        private readonly IFAQService _faqService;
 
-        public FAQController(FAQService faqService)
+        public FAQController(IFAQService faqService)
         {
             _faqService = faqService;
         }

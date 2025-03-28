@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KiMa_API.Services
 {
-    public class FAQService
+    public class FAQService : IFAQService
     {
         private readonly AppDbContext _context;
 

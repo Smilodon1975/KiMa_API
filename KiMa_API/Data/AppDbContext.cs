@@ -16,6 +16,8 @@ namespace KiMa_API.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<FAQ> FAQs { get; set; }
+        public DbSet<News> News { get; set; }
+
 
         /// <summary>
         /// Konfiguriert die Datenbankmodelle und setzt Standardwerte.
