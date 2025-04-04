@@ -106,19 +106,19 @@ namespace KiMa_API.Controllers
 
         [HttpPut("update")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateModel updateModel)
+        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto updateDto)
         {
             var requestUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var requestUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var success = await _userService.UpdateUserAsync(updateModel, requestUserId, requestUserRole ?? "Proband");
+            var success = await _userService.UpdateUserAsync(updateDto, requestUserId, requestUserRole ?? "Proband");
             if (!success)
             {
                 return BadRequest("Fehler beim Speichern der Daten.");
             }
 
             // Wenn ein neues Passwort angegeben wurde, versende eine Benachrichtigungsemail
-            if (!string.IsNullOrWhiteSpace(updateModel.Password))
+            if (!string.IsNullOrWhiteSpace(updateDto.Password))
             {
                 // Benutzer erneut abrufen, um Email und UserName zu erhalten
                 var user = await _userService.GetUserByIdAsync(requestUserId);

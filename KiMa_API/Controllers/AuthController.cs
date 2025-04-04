@@ -141,12 +141,6 @@ namespace KiMa_API.Controllers
         }
 
 
-
-
-
-
-
-
         /// Fordert einen Passwort-Reset an und sendet einen Reset-Link.
 
         [HttpPost("request-password-reset")]

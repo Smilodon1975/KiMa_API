@@ -59,40 +59,40 @@ namespace KiMa_API.Services
       
         /// Aktualisiert die Benutzerdaten eines bestehenden Benutzers.       
         /// <returns>True, wenn die Aktualisierung erfolgreich war, andernfalls False.</returns>
-        public async Task<bool> UpdateUserAsync(UserUpdateModel userUpdate)
+        public async Task<bool> UpdateUserAsync(UserUpdateDto updateDto)
         {
-            var user = await _userManager.FindByIdAsync(userUpdate.Id.ToString());
+            var user = await _userManager.FindByIdAsync(updateDto.Id.ToString());
             if (user == null) return false;
 
             // 🔹 Benutzerdaten aktualisieren, falls neue Werte vorhanden sind
-            user.UserName = userUpdate.UserName ?? user.UserName;
-            user.Email = userUpdate.Email ?? user.Email;            
-            user.FirstName = userUpdate.FirstName ?? user.FirstName;
-            user.LastName = userUpdate.LastName ?? user.LastName;
-            user.Title = userUpdate.Title ?? user.Title;
-            user.Gender = userUpdate.Gender ?? user.Gender;
-            user.Status = userUpdate.Status ?? user.Status;
-            user.PhonePrivate = userUpdate.PhonePrivate ?? user.PhonePrivate;
-            user.PhoneMobile = userUpdate.PhoneMobile ?? user.PhoneMobile;
-            user.PhoneWork = userUpdate.PhoneWork ?? user.PhoneWork;
-            user.Age = userUpdate.Age ?? user.Age;
-            user.BirthDate = userUpdate.BirthDate ?? user.BirthDate;
-            user.Street = userUpdate.Street ?? user.Street;
-            user.Zip = userUpdate.Zip ?? user.Zip;
-            user.City = userUpdate.City ?? user.City;
-            user.Country = userUpdate.Country ?? user.Country;
+            user.UserName = updateDto.UserName ?? user.UserName;
+            user.Email = updateDto.Email ?? user.Email;            
+            user.FirstName = updateDto.FirstName ?? user.FirstName;
+            user.LastName = updateDto.LastName ?? user.LastName;
+            user.Title = updateDto.Title ?? user.Title;
+            user.Gender = updateDto.Gender ?? user.Gender;
+            user.Status = updateDto.Status ?? user.Status;
+            user.PhonePrivate = updateDto.PhonePrivate ?? user.PhonePrivate;
+            user.PhoneMobile = updateDto.PhoneMobile ?? user.PhoneMobile;
+            user.PhoneWork = updateDto.PhoneWork ?? user.PhoneWork;
+            user.Age =  updateDto.Age ?? user.Age;
+            user.BirthDate = updateDto.BirthDate ?? user.BirthDate;
+            user.Street = updateDto.Street ?? user.Street;
+            user.Zip = updateDto    .Zip ?? user.Zip;
+            user.City = updateDto.City ?? user.City;
+            user.Country = updateDto.Country ?? user.Country;
 
-            if (!string.IsNullOrEmpty(userUpdate.Password))
+            if (!string.IsNullOrEmpty(updateDto.Password))
             {
                 var passwordHasher = new PasswordHasher<User>();
-                user.PasswordHash = passwordHasher.HashPassword(user, userUpdate.Password);
+                user.PasswordHash = passwordHasher.HashPassword(user, updateDto.Password);
             }
 
 
             // 🔹 Falls die Rolle geändert wurde, aktualisieren
-            if (!string.IsNullOrEmpty(userUpdate.Role) && user.Role != userUpdate.Role)
+            if (!string.IsNullOrEmpty(updateDto.Role) && user.Role != updateDto.Role)
             {
-                user.Role = userUpdate.Role;
+                user.Role = updateDto.Role;
             }
 
             var result = await _userManager.UpdateAsync(user);

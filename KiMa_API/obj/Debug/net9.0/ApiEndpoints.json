@@ -50,8 +50,8 @@
         "IsRequired": false
       },
       {
-        "Name": "userUpdate",
-        "Type": "KiMa_API.Models.Dto.UserUpdateModel",
+        "Name": "updateDto",
+        "Type": "KiMa_API.Models.Dto.UserUpdateDto",
         "IsRequired": true
       }
     ],
@@ -431,8 +431,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "updateModel",
-        "Type": "KiMa_API.Models.Dto.UserUpdateModel",
+        "Name": "updateDto",
+        "Type": "KiMa_API.Models.Dto.UserUpdateDto",
         "IsRequired": true
       }
     ],
@@ -447,5 +447,57 @@
     "Order": 0,
     "Parameters": [],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.UserProfileController",
+    "Method": "CreateOrUpdateProfile",
+    "RelativePath": "api/userprofile",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "profile",
+        "Type": "KiMa_API.Models.UserProfile",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KiMa_API.Models.UserProfile",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.UserProfileController",
+    "Method": "GetProfile",
+    "RelativePath": "api/userprofile/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KiMa_API.Models.UserProfile",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

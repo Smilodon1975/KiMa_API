@@ -124,6 +124,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 // 🔹 Controller & Swagger aktivieren
 builder.Services.AddScoped<IFAQService, FAQService>();
 builder.Services.AddScoped<INewsService, NewsService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -155,61 +156,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// 🔹 Seed-Datenbank vor `app.Run()` ausführen
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var userManager = services.GetRequiredService<UserManager<User>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
-    await SeedDatabase(userManager, roleManager);
-}
 
 app.Run();
 
-// 🔹 Seed-Methode
-async Task SeedDatabase(UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
-{
-    var roles = new[] { "Admin", "Proband" };
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole<int> { Name = role });
-        }
-    }
 
-    if (await userManager.FindByEmailAsync("admin@example.com") == null)
-    {
-        var adminUser = new User
-        {            
-            Email = "admin@example.com",
-            Role = "Admin",
-            FirstName = "Dieter",
-            LastName = "Krebs"
-        };
-
-        var result = await userManager.CreateAsync(adminUser, "AdminPass123!");
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
-        }
-    }
-
-    if (await userManager.FindByEmailAsync("proband@example.com") == null)
-    {
-        var probandUser = new User
-        {            
-            Email = "proband@example.com",
-            Role = "Proband",
-            FirstName = "Dieter",
-            LastName = "Krebs"
-        };
-
-        var result = await userManager.CreateAsync(probandUser, "ProbandPass123!");
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(probandUser, "Proband");
-        }
-    }
-}

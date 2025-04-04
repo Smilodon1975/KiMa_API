@@ -87,10 +87,6 @@ namespace KiMa_API.Services
             return token;
         }
 
-
-
-
-
         /// Setzt das Passwort eines Benutzers anhand eines Reset-Tokens zurück.   
         /// <returns>True, wenn das Passwort erfolgreich zurückgesetzt wurde, andernfalls False.</returns>
         public async Task<bool> ResetPasswordAsync(PasswordResetDto model)

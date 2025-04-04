@@ -71,9 +71,9 @@ namespace KiMa_API.Controllers
         /// Aktualisiert die Benutzerdaten eines bestehenden Benutzers.        
         /// <returns>Eine Bestätigung oder eine Fehlermeldung</returns>
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateModel userUpdate)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto updateDto)
         {
-            var success = await _adminService.UpdateUserAsync(userUpdate);
+            var success = await _adminService.UpdateUserAsync(updateDto);
             if (!success)
                 return BadRequest(new { message = "Fehler beim Speichern der Änderungen." });
 

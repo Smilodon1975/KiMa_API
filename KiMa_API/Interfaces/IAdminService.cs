@@ -24,6 +24,6 @@ namespace KiMa_API.Services
        
         /// Aktualisiert die Benutzerdaten eines bestehenden Benutzers.       
         /// <returns>Gibt True zurück, wenn die Aktualisierung erfolgreich war, andernfalls False.</returns>
-        Task<bool> UpdateUserAsync(UserUpdateModel userUpdate);
+        Task<bool> UpdateUserAsync(UserUpdateDto updateDto);
     }
 }

@@ -37,6 +37,10 @@ namespace KiMa_API.Models
         public string? Zip { get; set; } = null;
         public string? City { get; set; } = null;
         public string? Country { get; set; } = null;
+       
+        public virtual UserProfile? UserProfile { get; set; }
+
+
     }
 }
 

@@ -4,6 +4,7 @@ namespace KiMa_API.Services
 {
     public class CustomIdentityErrorDescriber : IdentityErrorDescriber
     {
+        //englische kryptische Fehlermeldungen werden hier ins deutsche übersetzt für die User-Ansicht
         public override IdentityError DuplicateEmail(string email)
         {
             return new IdentityError

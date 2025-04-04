@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KiMa_API.Models.Dto
 {
-    public class UserUpdateModel
+    public class UserUpdateDto
     {
         [Required]
         public int Id { get; set; }
@@ -39,5 +39,7 @@ namespace KiMa_API.Models.Dto
         public string? Country { get; set; }
         public string? Role { get; set; }
         public string? Password { get; set; }
+        public UserProfileUpdateDto? Profile { get; set; }
+
     }
 }

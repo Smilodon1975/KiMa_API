@@ -5,23 +5,25 @@ using KiMa_API.Models;
 
 namespace KiMa_API.Data
 {
-    /// <summary>
-    /// Der AppDbContext verwaltet die Datenbankverbindung und definiert die Identitätskonfiguration für Benutzer und Rollen.
-    /// </summary>
+    
+    // Der AppDbContext verwaltet die Datenbankverbindung und definiert die Identitätskonfiguration für Benutzer und Rollen.
+    // wird genutzt von EF um die Datenbank Tabellen zu erstellen
     public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
-        /// <summary>
-        /// Konstruktor für die Konfiguration der Datenbankoptionen.
-        /// </summary>
+        
+        // Konstruktor für die Konfiguration der Datenbankoptionen.
+       
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<FAQ> FAQs { get; set; }
         public DbSet<News> News { get; set; }
+        public DbSet<UserProfile> UserProfiles { get; set; }
 
 
-        /// <summary>
-        /// Konfiguriert die Datenbankmodelle und setzt Standardwerte.
-        /// </summary>
+
+       
+        // Konfiguriert die Datenbankmodelle und setzt Standardwerte.
+       
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -34,6 +36,14 @@ namespace KiMa_API.Data
 
             // Setzt den Standardwert für das Erstellungsdatum eines Benutzers
             builder.Entity<User>().Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            // Konfiguriere die One‑to‑One‑Beziehung zwischen User und UserProfile
+            builder.Entity<User>()
+                   .HasOne(u => u.UserProfile)           // User hat ein Profile
+                   .WithOne(p => p.User)             // UserProfile gehört zu einem User
+                   .HasForeignKey<UserProfile>(p => p.UserId); // Fremdschlüssel in UserProfile
+
+            
         }
     }
 }

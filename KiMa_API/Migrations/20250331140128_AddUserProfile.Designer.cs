@@ -3,6 +3,7 @@ using System;
 using KiMa_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KiMa_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250331140128_AddUserProfile")]
+    partial class AddUserProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -168,9 +171,6 @@ namespace KiMa_API.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("UserProfileUserId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Zip")
                         .HasColumnType("TEXT");
 
@@ -182,8 +182,6 @@ namespace KiMa_API.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("UserProfileUserId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -375,20 +373,11 @@ namespace KiMa_API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("KiMa_API.Models.User", b =>
-                {
-                    b.HasOne("KiMa_API.Models.UserProfile", "UserProfile")
-                        .WithMany()
-                        .HasForeignKey("UserProfileUserId");
-
-                    b.Navigation("UserProfile");
-                });
-
             modelBuilder.Entity("KiMa_API.Models.UserProfile", b =>
                 {
                     b.HasOne("KiMa_API.Models.User", "User")
-                        .WithOne("Profile")
-                        .HasForeignKey("KiMa_API.Models.UserProfile", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -444,11 +433,6 @@ namespace KiMa_API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("KiMa_API.Models.User", b =>
-                {
-                    b.Navigation("Profile");
                 });
 #pragma warning restore 612, 618
         }

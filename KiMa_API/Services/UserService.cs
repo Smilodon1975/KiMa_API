@@ -29,8 +29,11 @@ namespace KiMa_API.Services
         // Ruft die eigenen Benutzerdaten basierend auf der Anfrage-ID ab.
         public async Task<User?> GetMyDataAsync(int requestUserId)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == requestUserId);
+            return await _context.Users
+                .Include(u => u.UserProfile)
+                .FirstOrDefaultAsync(u => u.Id == requestUserId);
         }
+
 
         // Ruft eine Liste aller Benutzer ab.
         public async Task<IEnumerable<User>> GetAllUsersAsync()
@@ -39,43 +42,45 @@ namespace KiMa_API.Services
         }
 
         // Aktualisiert die Benutzerdaten eines bestehenden Benutzers.
-        public async Task<bool> UpdateUserAsync(UserUpdateModel updateModel, int requestUserId, string requestUserRole)
+        public async Task<bool> UpdateUserAsync(UserUpdateDto updateDto, int requestUserId, string requestUserRole)
         {
-            var user = await _context.Users.FindAsync(updateModel.Id);
+            var user = await _context.Users.FindAsync(updateDto.Id);
             if (user == null)
                 return false;
 
             // Aktualisiere nur Felder, die nicht null oder leer sind
-            if (!string.IsNullOrWhiteSpace(updateModel.UserName)) user.UserName = updateModel.UserName;
-            if (!string.IsNullOrWhiteSpace(updateModel.Email)) user.Email = updateModel.Email;
-            if (!string.IsNullOrWhiteSpace(updateModel.FirstName)) user.FirstName = updateModel.FirstName;
-            if (!string.IsNullOrWhiteSpace(updateModel.LastName)) user.LastName = updateModel.LastName;
-            if (!string.IsNullOrWhiteSpace(updateModel.Title)) user.Title = updateModel.Title;
-            if (!string.IsNullOrWhiteSpace(updateModel.Gender)) user.Gender = updateModel.Gender;
-            if (!string.IsNullOrWhiteSpace(updateModel.Status)) user.Status = updateModel.Status;
+            if (!string.IsNullOrWhiteSpace(updateDto.UserName)) user.UserName = updateDto.UserName;
+            if (!string.IsNullOrWhiteSpace(updateDto.Email)) user.Email = updateDto.Email;
+            if (!string.IsNullOrWhiteSpace(updateDto.FirstName)) user.FirstName = updateDto.FirstName;
+            if (!string.IsNullOrWhiteSpace(updateDto.LastName)) user.LastName = updateDto.LastName;
+            if (!string.IsNullOrWhiteSpace(updateDto.Title)) user.Title = updateDto.Title;
+            if (!string.IsNullOrWhiteSpace(updateDto.Gender)) user.Gender = updateDto.Gender;
+            if (!string.IsNullOrWhiteSpace(updateDto.Status)) user.Status = updateDto.Status;
 
-            if (!string.IsNullOrWhiteSpace(updateModel.PhonePrivate)) user.PhonePrivate = updateModel.PhonePrivate;
-            if (!string.IsNullOrWhiteSpace(updateModel.PhoneMobile)) user.PhoneMobile = updateModel.PhoneMobile;
-            if (!string.IsNullOrWhiteSpace(updateModel.PhoneWork)) user.PhoneWork = updateModel.PhoneWork;
+            if (!string.IsNullOrWhiteSpace(updateDto.PhonePrivate)) user.PhonePrivate = updateDto.PhonePrivate;
+            if (!string.IsNullOrWhiteSpace(updateDto.PhoneMobile)) user.PhoneMobile = updateDto.PhoneMobile;
+            if (!string.IsNullOrWhiteSpace(updateDto.PhoneWork)) user.PhoneWork = updateDto.PhoneWork;
 
-            if (updateModel.Age.HasValue) user.Age = updateModel.Age.Value;
-            if (updateModel.BirthDate.HasValue) user.BirthDate = updateModel.BirthDate.Value;
+            if (updateDto.Age.HasValue) user.Age = updateDto.Age.Value;
+            if (updateDto.BirthDate.HasValue) user.BirthDate = updateDto.BirthDate.Value;
 
-            if (!string.IsNullOrWhiteSpace(updateModel.Street)) user.Street = updateModel.Street;
-            if (!string.IsNullOrWhiteSpace(updateModel.Zip)) user.Zip = updateModel.Zip;
-            if (!string.IsNullOrWhiteSpace(updateModel.City)) user.City = updateModel.City;
-            if (!string.IsNullOrWhiteSpace(updateModel.Country)) user.Country = updateModel.Country;
+            if (!string.IsNullOrWhiteSpace(updateDto.Street)) user.Street = updateDto.Street;
+            if (!string.IsNullOrWhiteSpace(updateDto.Zip)) user.Zip = updateDto.Zip;
+            if (!string.IsNullOrWhiteSpace(updateDto.City)) user.City =   updateDto.City;
+            if (!string.IsNullOrWhiteSpace(updateDto.Country)) user.Country = updateDto.Country;
 
-            if (!string.IsNullOrEmpty(updateModel.Password))
+            if (!string.IsNullOrEmpty(updateDto.Password))
             {
                 var passwordHasher = new PasswordHasher<User>();
-                user.PasswordHash = passwordHasher.HashPassword(user, updateModel.Password);
+                user.PasswordHash = passwordHasher.HashPassword(user, updateDto.Password);
             }
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
             return true;
         }
+
+
 
         public async Task<bool> DeleteAccountAsync(int userId, string password)
         {
