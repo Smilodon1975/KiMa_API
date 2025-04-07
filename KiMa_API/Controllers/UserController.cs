@@ -51,9 +51,9 @@ namespace KiMa_API.Controllers
             return Ok(new { role = user.Role });
         }
 
-       
+
         /// Ruft die eigenen Benutzerdaten basierend auf dem JWT-Token ab.
-        
+
         [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> GetMyData()
@@ -65,22 +65,31 @@ namespace KiMa_API.Controllers
                 return Unauthorized("Kein gültiges Token.");
             }
 
-            var userId = int.Parse(userIdClaim.Value);
+            // Verwende TryParse für mehr Sicherheit
+            if (!int.TryParse(userIdClaim.Value, out var userId))
+            {
+                _logger.LogWarning($"Ungültiger Benutzer-ID-Claim: {userIdClaim.Value}");
+                return BadRequest("Ungültige Benutzer-ID im Token.");
+            }
+
             _logger.LogInformation($"Abruf der eigenen Daten für UserID: {userId}");
 
-            var user = await _userService.GetUserByIdAsync(userId);
+            // ---> KORREKTUR: Rufe jetzt GetMyDataAsync auf <---
+            var user = await _userService.GetMyDataAsync(userId);
+
             if (user == null)
             {
                 _logger.LogWarning($"Benutzer mit ID {userId} nicht gefunden!");
                 return NotFound("Benutzer nicht gefunden.");
             }
 
+            // 'user' enthält jetzt auch das UserProfile (wenn in DB vorhanden)
             return Ok(user);
         }
 
-       
+
         /// Ruft eine Liste aller Benutzer ab (nur für Admins).
-       
+
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()

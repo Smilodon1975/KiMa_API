@@ -807,7 +807,7 @@
       }
     },
     "/api/userprofile": {
-      "post": {
+      "put": {
         "tags": [
           "UserProfile"
         ],
@@ -815,17 +815,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserProfile"
+                "$ref": "#/components/schemas/UserProfileUpdateDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserProfile"
+                "$ref": "#/components/schemas/UserProfileUpdateDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/UserProfile"
+                "$ref": "#/components/schemas/UserProfileUpdateDto"
               }
             }
           }
@@ -1339,13 +1339,12 @@
       },
       "VehicleCategory": {
         "enum": [
-          0,
-          1,
-          2,
-          3
+          "None",
+          "Car",
+          "Motorcycle",
+          "Other"
         ],
-        "type": "integer",
-        "format": "int32"
+        "type": "string"
       }
     },
     "securitySchemes": {

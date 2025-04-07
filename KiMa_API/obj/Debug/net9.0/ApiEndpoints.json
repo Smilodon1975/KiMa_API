@@ -452,13 +452,13 @@
     "ContainingType": "KiMa_API.Controllers.UserProfileController",
     "Method": "CreateOrUpdateProfile",
     "RelativePath": "api/userprofile",
-    "HttpMethod": "POST",
+    "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "profile",
-        "Type": "KiMa_API.Models.UserProfile",
+        "Name": "profileDto",
+        "Type": "KiMa_API.Models.Dto.UserProfileUpdateDto",
         "IsRequired": true
       }
     ],

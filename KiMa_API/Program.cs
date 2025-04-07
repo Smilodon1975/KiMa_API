@@ -5,8 +5,10 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using KiMa_API.Data;
 using KiMa_API.Models;
+using KiMa_API.Models.Dto;
 using Microsoft.OpenApi.Models;
 using KiMa_API.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -122,10 +124,22 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 
 // 🔹 Controller & Swagger aktivieren
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    // Behalte den Enum-Konverter bei:
+    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+
+    // ---> NEU: Füge diesen Handler hinzu, um Zyklen zu ignorieren <---
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+
+    // Optional: Andere Optionen
+    // options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+});
+
 builder.Services.AddScoped<IFAQService, FAQService>();
 builder.Services.AddScoped<INewsService, NewsService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -133,6 +147,7 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHttpContextAccessor();
 
 
 
