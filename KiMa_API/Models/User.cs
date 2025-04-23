@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KiMa_API.Models
 {
@@ -8,9 +9,12 @@ namespace KiMa_API.Models
     {
         /// Erweiterte Benutzerklasse, die von `IdentityUser<int>` erbt und zusätzliche Eigenschaften enthält.
         public string Role { get; set; } = "Proband";
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [ MaxLength(100)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreatedAt { get; set; }
+
+
+        [MaxLength(100)]
         public string FirstName { get; set; } = string.Empty; 
 
         [ MaxLength(100)]

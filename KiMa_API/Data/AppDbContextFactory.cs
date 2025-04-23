@@ -5,29 +5,28 @@ using System.IO;
 
 namespace KiMa_API.Data
 {
-
-    /// Factory für die Erstellung des `AppDbContext` zur Verwendung mit Migrations- und Design-Time-Tools.
-
     public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
-        
-        /// Erstellt eine neue Instanz des `AppDbContext` mit der Konfiguration aus `appsettings.json`.
-      
         public AppDbContext CreateDbContext(string[] args)
         {
-            // 🔹 Konfigurationsdatei laden
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true)
                 .Build();
 
-            // 🔹 Verbindungszeichenfolge abrufen oder Fallback auf SQLite setzen
-            var connectionString = configuration.GetConnectionString("SQLiteConnection")
-                               ?? "Data Source=KiMaDB.sqlite";
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            // 🔹 Optionen für den DbContext erstellen
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                // Falls keine Verbindung da ist, z. B. bei Migrationserstellung ohne Zugriff
+                connectionString = "Server=localhost;Database=dummy;User Id=dummy;Password=dummy;";
+            }
+
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlite(connectionString); // SQLite als Datenbank verwenden
+            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 
             return new AppDbContext(optionsBuilder.Options);
         }

@@ -43,7 +43,10 @@ namespace KiMa_API.Data
                    .WithOne(p => p.User)             // UserProfile gehört zu einem User
                    .HasForeignKey<UserProfile>(p => p.UserId); // Fremdschlüssel in UserProfile
 
-            
+             builder.Entity<User>()
+                    .Property(b => b.CreatedAt)
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
         }
     }
 }

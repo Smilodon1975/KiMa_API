@@ -12,13 +12,12 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 ConnectionString aus appsettings.json holen
-var connectionString = builder.Configuration.GetConnectionString("SQLiteConnection");
-
-// 🔹 SQLite als Datenbankprovider setzen
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString)
-);
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+    ));
+
 
 // 🔹 CORS-Richtlinie für Angular-App
 builder.Services.AddCors(options =>
@@ -155,7 +154,7 @@ builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // 🔹 Middleware-Pipeline konfigurieren
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || true) // ← "true" zeigt es auch in Prod 😎
 {
     app.UseSwagger();
     app.UseSwaggerUI();
