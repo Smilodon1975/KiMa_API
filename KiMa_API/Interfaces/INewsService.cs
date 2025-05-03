@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using KiMa_API.Models;
+﻿using KiMa_API.Models;
 
 namespace KiMa_API.Services
 {

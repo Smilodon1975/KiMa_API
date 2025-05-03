@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,14 +14,14 @@ namespace KiMa_API.Models
 
 
         [MaxLength(100)]
-        public string FirstName { get; set; } = string.Empty; 
+        public string FirstName { get; set; } = string.Empty;
 
-        [ MaxLength(100)]
+        [MaxLength(100)]
         public string LastName { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(50)] // Falls es Zeichenlimit gibt
-        public override string UserName { get; set; } = string.Empty; 
+        public override string UserName { get; set; } = string.Empty;
 
         public string? Title { get; set; } = null;
         public string? Gender { get; set; } = null;
@@ -41,7 +40,10 @@ namespace KiMa_API.Models
         public string? Zip { get; set; } = null;
         public string? City { get; set; } = null;
         public string? Country { get; set; } = null;
-       
+
+        // ✅ Data Consent
+        public bool DataConsent { get; set; } = false;
+
         public virtual UserProfile? UserProfile { get; set; }
 
 

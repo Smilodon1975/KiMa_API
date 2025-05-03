@@ -11,14 +11,12 @@ namespace KiMa_API.Models
         public required string Email { get; set; }
 
 
-
-
         [Required(ErrorMessage = "Passwort ist erforderlich.")]
         [MinLength(8, ErrorMessage = "Passwort muss mindestens 8 Zeichen lang sein.")]
         public required string Password { get; set; }
 
+        public bool DataConsent { get; set; } = true;
 
-        
         public string? UserName { get; set; }
     }
 }

@@ -1,12 +1,10 @@
 ﻿using KiMa_API.Models;
 using KiMa_API.Models.Dto;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace KiMa_API.Services
 {
-    
+
     /// Service für die Authentifizierung, Benutzerregistrierung und Passwortverwaltung.    
     public class AuthService : IAuthService
     {

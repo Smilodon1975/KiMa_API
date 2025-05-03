@@ -1,21 +1,18 @@
 ﻿using KiMa_API.Models;
+using KiMa_API.Models.Dto;
 using KiMa_API.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using KiMa_API.Models.Dto;
-using Microsoft.Extensions.Logging;
 
 
 namespace KiMa_API.Controllers
 {
-   
+
     /// Der UserController verwaltet Benutzeraktionen wie das Abrufen und Aktualisieren der eigenen Daten.
     /// Einige Endpunkte sind Admin-exklusiv.
-    
+
     [ApiController]
     [Route("api/user")]
     public class UserController : ControllerBase
@@ -36,9 +33,9 @@ namespace KiMa_API.Controllers
             _mailService = mailService;
         }
 
-      
+
         /// Gibt die Rolle des aktuell eingeloggten Benutzers zurück.
-        
+
         [HttpGet("user-role")]
         [Authorize]
         public async Task<IActionResult> GetUserRole()
@@ -98,9 +95,9 @@ namespace KiMa_API.Controllers
             return Ok(users);
         }
 
-       
+
         /// Ruft einen Benutzer anhand der ID ab.
-        
+
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetUserById(int id)

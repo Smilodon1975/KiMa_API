@@ -3,8 +3,6 @@ using KiMa_API.Models;
 using KiMa_API.Models.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using static KiMa_API.Controllers.UserController;
 
 namespace KiMa_API.Services
 {
@@ -66,8 +64,9 @@ namespace KiMa_API.Services
 
             if (!string.IsNullOrWhiteSpace(updateDto.Street)) user.Street = updateDto.Street;
             if (!string.IsNullOrWhiteSpace(updateDto.Zip)) user.Zip = updateDto.Zip;
-            if (!string.IsNullOrWhiteSpace(updateDto.City)) user.City =   updateDto.City;
+            if (!string.IsNullOrWhiteSpace(updateDto.City)) user.City = updateDto.City;
             if (!string.IsNullOrWhiteSpace(updateDto.Country)) user.Country = updateDto.Country;
+            if (updateDto.DataConsent.HasValue) user.DataConsent = updateDto.DataConsent.Value;
 
             if (!string.IsNullOrEmpty(updateDto.Password))
             {

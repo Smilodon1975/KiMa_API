@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using KiMa_API.Data;
+using KiMa_API.Models;
+using KiMa_API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using KiMa_API.Data;
-using KiMa_API.Models;
-using KiMa_API.Models.Dto;
 using Microsoft.OpenApi.Models;
-using KiMa_API.Services;
-using System.Text.Json.Serialization;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,12 +18,25 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
     ));
 
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(2, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;            // Gibt Versions-Header zurück
+    options.ApiVersionReader = new UrlSegmentApiVersionReader(); // oder HeaderReader
+});
+builder.Services
+       .AddHttpClient<IRapidmailService, RapidmailService>();
 
 // 🔹 CORS-Richtlinie für Angular-App
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp",
-        policy => policy.WithOrigins("http://localhost:4200")
+        policy => policy.WithOrigins("http://localhost:4200",
+        "https://kima-gui-efcbhkgkdkf8a9ap.westeurope-01.azurewebsites.net",
+        "https://kimafo.info"
+        )
+
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());
@@ -52,9 +65,6 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
     // Setzt die Gültigkeitsdauer des Tokens auf 1 Tag (du kannst das natürlich anpassen)
     options.TokenLifespan = TimeSpan.FromDays(1);
 });
-
-
-
 // 🔹 JWT-Authentifizierung
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "supergeheimeschluessel123!");
@@ -80,11 +90,8 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
-
 builder.Logging.AddConsole();
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
-
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -110,7 +117,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Events.OnRedirectToLogin = context =>
@@ -120,58 +126,35 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-
-
-// 🔹 Controller & Swagger aktivieren
-
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    // Behalte den Enum-Konverter bei:
     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-
-    // ---> NEU: Füge diesen Handler hinzu, um Zyklen zu ignorieren <---
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 
-    // Optional: Andere Optionen
-    // options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 });
 
-builder.Services.AddScoped<IFAQService, FAQService>();
-builder.Services.AddScoped<INewsService, NewsService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<INewsService, NewsService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFAQService, FAQService>();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
-
-
-
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// 🔹 Middleware-Pipeline konfigurieren
-if (app.Environment.IsDevelopment() || true) // ← "true" zeigt es auch in Prod 😎
+if (app.Environment.IsDevelopment() || true)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
-
-// 🔹 CORS DIREKT HIER EINBINDEN
 app.UseCors("AllowAngularApp");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
-
-
 app.Run();
-
-

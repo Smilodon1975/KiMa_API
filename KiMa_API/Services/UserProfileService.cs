@@ -2,9 +2,7 @@
 using KiMa_API.Models;
 using KiMa_API.Models.Dto;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace KiMa_API.Services
 {

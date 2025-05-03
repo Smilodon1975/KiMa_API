@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
-using KiMa_API.Models;
+﻿using KiMa_API.Models;
 using KiMa_API.Models.Dto;
 using KiMa_API.Services;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace KiMa_API.Controllers
 {
-    
+
     /// Der AdminController verwaltet administrative Aufgaben wie das Abrufen, Aktualisieren, Löschen 
     /// und Setzen von Benutzerrollen. Alle Endpunkte sind nur für Benutzer mit der Rolle "Admin" zugänglich.
-    
+
     [Route("api/admin")]
     [ApiController]
     [Authorize(Roles = "Admin")] // Nur Admins haben Zugriff
@@ -20,15 +19,15 @@ namespace KiMa_API.Controllers
         private readonly IAdminService _adminService; // Service zur Verwaltung von Admin-Funktionen
         private readonly UserManager<User> _userManager; // ASP.NET Identity-UserManager zur Verwaltung der Benutzer
 
-        
+
         /// Konstruktor zur Injektion der benötigten Dienste.  
-              public AdminController(IAdminService adminService, UserManager<User> userManager)
+        public AdminController(IAdminService adminService, UserManager<User> userManager)
         {
             _adminService = adminService;
             _userManager = userManager;
         }
 
-       
+
         /// Ruft eine Liste aller registrierten Benutzer ab.        
         /// <returns>Eine Liste von Benutzern im JSON-Format</returns>
         [HttpGet("users")]
@@ -67,7 +66,7 @@ namespace KiMa_API.Controllers
             return Ok("Rolle erfolgreich aktualisiert.");
         }
 
-       
+
         /// Aktualisiert die Benutzerdaten eines bestehenden Benutzers.        
         /// <returns>Eine Bestätigung oder eine Fehlermeldung</returns>
         [HttpPut("update")]

@@ -1,6 +1,4 @@
-﻿using KiMa_API.Models;
-
-namespace KiMa_API.Models.Dto
+﻿namespace KiMa_API.Models.Dto
 {
     public class UserProfileUpdateDto
     {

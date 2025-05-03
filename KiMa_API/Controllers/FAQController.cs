@@ -2,8 +2,6 @@
 using KiMa_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 
 namespace KiMa_API.Controllers

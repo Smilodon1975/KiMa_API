@@ -1,8 +1,5 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
-using KiMa_API.Models;
 
 namespace KiMa_API.Services
 {
@@ -31,7 +28,7 @@ namespace KiMa_API.Services
                 EnableSsl = true
             };
 
-            var frontendUrl = "http://localhost:4200/reset-password";
+            var frontendUrl = "https://kimafo.info/reset-password";
             var resetLink = $"{frontendUrl}?token={WebUtility.UrlEncode(resetToken)}" +
                             $"&email={WebUtility.UrlEncode(toEmail)}" +
                             $"&userName={WebUtility.UrlEncode(userName)}";
@@ -74,7 +71,7 @@ namespace KiMa_API.Services
             };
 
             // Setze hier die URL deines Frontends, das die Bestätigung verarbeitet
-            var frontendUrl = "http://localhost:4200/confirm-email";
+            var frontendUrl = "https://kimafo.info/confirm-email";
             var confirmationLink = $"{frontendUrl}?token={WebUtility.UrlEncode(confirmationToken)}" +
                                    $"&email={WebUtility.UrlEncode(toEmail)}" +
                                    $"&userName={WebUtility.UrlEncode(userName)}";

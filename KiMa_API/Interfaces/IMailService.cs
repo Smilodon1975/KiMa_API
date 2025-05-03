@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
-
-namespace KiMa_API.Services
+﻿namespace KiMa_API.Services
 {
- 
+
     /// Schnittstelle für den E-Mail-Service, der das Versenden von Passwort-Reset-E-Mails übernimmt.
-  
+
     public interface IMailService
     {
 

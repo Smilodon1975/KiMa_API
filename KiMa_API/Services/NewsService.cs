@@ -1,9 +1,6 @@
 ﻿using KiMa_API.Data;
 using KiMa_API.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace KiMa_API.Services
 {

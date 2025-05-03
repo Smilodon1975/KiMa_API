@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using KiMa_API.Models;
 using Microsoft.IdentityModel.Tokens;
-using KiMa_API.Models;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

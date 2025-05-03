@@ -2,14 +2,12 @@
 using KiMa_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace KiMa_API.Controllers
 {
     [ApiController]
     [Route("api/news")]
-   
+
     public class NewsController : ControllerBase
     {
         private readonly INewsService _newsService;

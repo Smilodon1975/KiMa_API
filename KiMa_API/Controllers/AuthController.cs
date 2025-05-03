@@ -1,17 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using KiMa_API.Models;
-using KiMa_API.Services;
-using System.Threading.Tasks;
+﻿using KiMa_API.Models;
 using KiMa_API.Models.Dto;
-using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
+using KiMa_API.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace KiMa_API.Controllers
 {
- 
+
     /// Der AuthController verwaltet die Authentifizierungsprozesse wie Login, Registrierung und Passwort-Reset.
-    
+
     [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -22,9 +19,9 @@ namespace KiMa_API.Controllers
         private readonly ILogger<AuthService> _logger;
         private readonly IMailService _mailService;
 
-        
+
         /// Konstruktor mit Dependency Injection für Benutzerverwaltung, Authentifizierungs- und JWT-Services.
-        
+
         public AuthController(UserManager<User> userManager, IAuthService authService, JwtService jwtService, ILogger<AuthService> logger, IMailService mailService)
         {
             _userManager = userManager;
@@ -34,9 +31,9 @@ namespace KiMa_API.Controllers
             _mailService = mailService;
         }
 
-      
+
         /// Login für Benutzer. Prüft die Anmeldedaten und gibt ein JWT-Token zurück.
-       
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -52,56 +49,30 @@ namespace KiMa_API.Controllers
         /// Registriert einen neuen Benutzer und gibt eine Erfolgsmeldung zurück.
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IdentityResult> RegisterAsync(RegisterModel model)
         {
-            _logger.LogInformation("Registrierungsversuch gestartet.");
+            if (model.Email is null)
+                throw new ArgumentNullException(nameof(model.Email));
+            if (model.Password is null)
+                throw new ArgumentNullException(nameof(model.Password));
 
-            // Validierung prüfen
-            if (!ModelState.IsValid)
+            // User anlegen – alle erforderlichen Felder
+            var user = new User
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                _logger.LogWarning("Registrierung fehlgeschlagen: Validierungsfehler.");
-                return BadRequest(new { message = "Validierungsfehler", errors });
-            }
+                Email = model.Email,
+                UserName = string.IsNullOrWhiteSpace(model.UserName)
+                                     ? model.Email
+                                     : model.UserName,
+                NormalizedUserName = (model.UserName ?? model.Email).ToUpper(),
+                DataConsent = true  // Newsletter-Opt-In direkt setzen
+            };
 
-            // Manuelle E-Mail-Format-Prüfung
-            var emailValidator = new EmailAddressAttribute();
-            if (!emailValidator.IsValid(model.Email))
-            {
-                _logger.LogWarning("Registrierung fehlgeschlagen: Ungültige E-Mail-Adresse.");
-                return BadRequest(new { message = "Ungültige E-Mail-Adresse." });
-            }
+            // Anmelden
+            var result = await _userManager.CreateAsync(user, model.Password);
 
-            var result = await _authService.RegisterAsync(model);
-            if (result == null)
-            {
-                _logger.LogError("Fehler: Authentifizierungsservice hat null zurückgegeben.");
-                return StatusCode(500, "Interner Serverfehler.");
-            }
-
-            // Falls Registrierung fehlschlägt, Fehler zurückgeben
-            if (!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description);
-                _logger.LogError("Registrierung fehlgeschlagen.");
-                foreach (var error in result.Errors)
-                {
-                    _logger.LogError($"Fehler: {error.Code} - {error.Description}");
-                }
-                return BadRequest(new { message = "Registrierung fehlgeschlagen", errors });
-            }
-
-            // Registrierung war erfolgreich – nun Bestätigungs-Mail senden
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user != null)
-            {
-                var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                await _mailService.SendEmailConfirmationEmailAsync(user.Email, confirmationToken, user.UserName);
-            }
-
-            _logger.LogInformation("Registrierung erfolgreich.");
-            return Ok(new { message = "Registrierung erfolgreich! Bitte bestätige deine E-Mail-Adresse." });
+            return result;
         }
+
 
 
 

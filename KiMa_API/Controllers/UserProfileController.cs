@@ -3,7 +3,6 @@ using KiMa_API.Models.Dto;
 using KiMa_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace KiMa_API.Controllers
 {
@@ -29,7 +28,7 @@ namespace KiMa_API.Controllers
             return Ok(profile);
         }
 
-        
+
         // Ändere hier UserProfile zu UserProfileUpdateDto
         [HttpPut]
         public async Task<ActionResult<UserProfile>> CreateOrUpdateProfile([FromBody] UserProfileUpdateDto profileDto)
