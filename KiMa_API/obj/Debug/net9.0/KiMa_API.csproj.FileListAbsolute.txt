@@ -452,6 +452,7 @@ C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.KiMa_API.props
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.KiMa_API.props
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets.pack.json
+C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\KiMa_API.csproj.Up2Date
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\KiMa_API.dll
 C:\Users\Smilodon\Smilo-Documents\Projekt KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\refint\KiMa_API.dll

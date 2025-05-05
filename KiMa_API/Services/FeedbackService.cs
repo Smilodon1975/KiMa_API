@@ -31,7 +31,7 @@ namespace KiMa_API.Services
             var subject = "Neues Test-Feedback von KiMa";
             var body = $"<p><strong>Von:</strong> {dto.Email ?? "Gast"}</p>" +
                        $"<p><strong>Inhalt:</strong><br/>{dto.Content}</p>";
-            await SendEmailAsync("admin@kimafo.info", subject, body);
+            await SendEmailAsync("techsupport@kimafo.de", subject, body);
         }
 
         private async Task<bool> SendEmailAsync(string toEmail, string subject, string body)

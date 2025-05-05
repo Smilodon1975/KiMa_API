@@ -32,7 +32,8 @@ builder.Services
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp",
-        policy => policy.WithOrigins("http://localhost:4200",
+        policy => policy.WithOrigins(
+        "http://localhost:4200",
         "https://kima-gui-efcbhkgkdkf8a9ap.westeurope-01.azurewebsites.net",
         "https://kimafo.info"
         )
@@ -144,7 +145,6 @@ builder.Services.AddScoped<IFAQService, FAQService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment() || true)
