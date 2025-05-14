@@ -106,7 +106,7 @@
   },
   {
     "ContainingType": "KiMa_API.Controllers.AuthController",
-    "Method": "Register",
+    "Method": "RegisterAsync",
     "RelativePath": "api/auth/register",
     "HttpMethod": "POST",
     "IsController": true,
@@ -118,7 +118,17 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "Microsoft.AspNetCore.Identity.IdentityResult",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "KiMa_API.Controllers.AuthController",
@@ -147,6 +157,64 @@
       {
         "Name": "model",
         "Type": "KiMa_API.Models.Dto.PasswordResetDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.CampaignController",
+    "Method": "SendCampaign",
+    "RelativePath": "api/campaign/send",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "CampaignName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Attachment",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "Recipients",
+        "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.CampaignController",
+    "Method": "AddSubscriber",
+    "RelativePath": "api/campaign/subscriber/add",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "KiMa_API.Controllers.EmailDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.CampaignController",
+    "Method": "RemoveSubscriber",
+    "RelativePath": "api/campaign/subscriber/remove",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "KiMa_API.Controllers.EmailDto",
         "IsRequired": true
       }
     ],
@@ -249,6 +317,48 @@
     "ContainingType": "KiMa_API.Controllers.FAQController",
     "Method": "DeleteFAQ",
     "RelativePath": "api/faq/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.FeedbackController",
+    "Method": "Post",
+    "RelativePath": "api/Feedback",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "KiMa_API.Models.Dto.FeedbackDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.FeedbackController",
+    "Method": "Get",
+    "RelativePath": "api/Feedback",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.FeedbackController",
+    "Method": "Delete",
+    "RelativePath": "api/Feedback/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,

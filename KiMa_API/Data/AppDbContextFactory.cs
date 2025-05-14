@@ -7,24 +7,38 @@ namespace KiMa_API.Data
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+            // 1. Environment auslesen (Default = Production)
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                              ?? "Production";
 
+            // 2. Konfiguration laden, inkl. appsettings.Development.json
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false)
                 .AddJsonFile($"appsettings.{environment}.json", optional: true)
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            // 3. ConnectionString ziehen
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                                   ?? throw new InvalidOperationException(
+                                        "Fehlt DefaultConnection in appsettings.");
 
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                // Falls keine Verbindung da ist, z. B. bei Migrationserstellung ohne Zugriff
-                connectionString = "Server=localhost;Database=dummy;User Id=dummy;Password=dummy;";
-            }
-
+            // 4. DbContext-Optionen aufbauen
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+
+            if (environment.Equals("Development", StringComparison.OrdinalIgnoreCase))
+            {
+                // Development → SQLite
+                optionsBuilder.UseSqlite(connectionString);
+            }
+            else
+            {
+                // Production (bzw. alles andere) → MySQL
+                optionsBuilder.UseMySql(
+                    connectionString,
+                    ServerVersion.AutoDetect(connectionString)
+                );
+            }
 
             return new AppDbContext(optionsBuilder.Options);
         }

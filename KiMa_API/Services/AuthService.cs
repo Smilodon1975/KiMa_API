@@ -1,4 +1,5 @@
-﻿using KiMa_API.Models;
+﻿using System.Net;
+using KiMa_API.Models;
 using KiMa_API.Models.Dto;
 using Microsoft.AspNetCore.Identity;
 
@@ -43,18 +44,32 @@ namespace KiMa_API.Services
         /// <returns>Ein IdentityResult-Objekt, das den Erfolg oder Fehler der Registrierung enthält.</returns>
         public async Task<IdentityResult> RegisterAsync(RegisterModel model)
         {
-            _logger.LogInformation($"DEBUG: Eingehender UserName = '{model.UserName}'");
-
             var user = new User
             {
                 Email = model.Email ?? throw new ArgumentNullException(nameof(model.Email)),
                 UserName = string.IsNullOrWhiteSpace(model.UserName) ? model.Email : model.UserName,
                 NormalizedUserName = (model.UserName ?? model.Email).ToUpper()
             };
+            var result = await _userManager.CreateAsync(user, model.Password!);
+            if (!result.Succeeded)
+                return result;
 
-            _logger.LogInformation($"DEBUG: Gespeicherter UserName = '{user.UserName}'");
+            // 2️⃣ E-Mail-Bestätigungstoken erzeugen
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-            return await _userManager.CreateAsync(user, model.Password ?? throw new ArgumentNullException(nameof(model.Password)));
+            // 3️⃣ Bestätigungs-Link zusammenbauen
+            var frontendUrl = _config["Frontend:BaseUrl"]
+                              ?? "https://kimafo.info";
+            var confirmLink = $"{frontendUrl}/confirm-email?token={WebUtility.UrlEncode(token)}&email={WebUtility.UrlEncode(user.Email)}";
+
+            // 4️⃣ Mail abschicken
+            await _mailService.SendEmailConfirmationEmailAsync(
+                user.Email,
+                token,
+                user.UserName
+            );
+
+            return result;
         }
 
 

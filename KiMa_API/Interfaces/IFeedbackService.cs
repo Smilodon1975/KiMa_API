@@ -6,6 +6,6 @@ public interface IFeedbackService
     Task SubmitAsync(FeedbackDto dto);
     Task<List<Feedback>> GetAllAsync();
     Task<bool> DeleteAsync(int id);
-    
+
 }
 
