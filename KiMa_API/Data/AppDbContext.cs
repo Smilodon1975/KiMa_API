@@ -46,8 +46,11 @@ namespace KiMa_API.Data
                    .HasForeignKey<UserProfile>(p => p.UserId); // Fremdschlüssel in UserProfile
 
             builder.Entity<User>()
-                   .Property(b => b.CreatedAt)
-                   .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+                    .Property(u => u.CreatedAt)
+                    .HasColumnType("datetime") // optional
+                    .HasDefaultValueSql(Database.IsMySql()
+                            ? "CURRENT_TIMESTAMP(6)"
+                            : "CURRENT_TIMESTAMP");
 
         }
     }

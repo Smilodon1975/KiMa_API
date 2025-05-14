@@ -1,4 +1,5 @@
-﻿using KiMa_API.Data;
+﻿using System.Text;
+using KiMa_API.Data;
 using KiMa_API.Models;
 using KiMa_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,15 +9,37 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
+using Azure.Communication.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
-    ));
+if (builder.Environment.IsDevelopment())
+{
+    // Development: SQLite
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(
+            builder.Configuration.GetConnectionString("DefaultConnection")
+        ));
+}
+else
+{
+    // Production: MySQL
+    var mysqlConn = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseMySql(
+            mysqlConn,
+            ServerVersion.AutoDetect(mysqlConn)
+        ));
+}
+
+builder.Services.AddSingleton(sp =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var connStr = cfg["CommunicationServices:EmailConnectionString"]
+        ?? throw new InvalidOperationException("Missing CommunicationServices:EmailConnectionString");
+    return new EmailClient(connStr);
+});
+
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -25,8 +48,7 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;            // Gibt Versions-Header zurück
     options.ApiVersionReader = new UrlSegmentApiVersionReader(); // oder HeaderReader
 });
-builder.Services
-       .AddHttpClient<IRapidmailService, RapidmailService>();
+
 
 // 🔹 CORS-Richtlinie für Angular-App
 builder.Services.AddCors(options =>
@@ -37,10 +59,9 @@ builder.Services.AddCors(options =>
         "https://kima-gui-efcbhkgkdkf8a9ap.westeurope-01.azurewebsites.net",
         "https://kimafo.info"
         )
-
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials());
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
 });
 
 // 🔹 Identity für Benutzerverwaltung
@@ -134,6 +155,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 });
 
+builder.Services.AddScoped<IEmailCampaignService, AzureEmailCampaignService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
@@ -149,6 +171,7 @@ builder.Services.AddScoped<JwtService>();
 var app = builder.Build();
 if (app.Environment.IsDevelopment() || true)
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
