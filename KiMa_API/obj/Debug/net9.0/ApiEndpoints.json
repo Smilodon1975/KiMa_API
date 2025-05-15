@@ -164,6 +164,37 @@
   },
   {
     "ContainingType": "KiMa_API.Controllers.CampaignController",
+    "Method": "GetUsers",
+    "RelativePath": "api/campaign/campaignUsers",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KiMa_API.Controllers.PaginatedResult\u00601[[KiMa_API.Controllers.CampaignUser, KiMa_API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KiMa_API.Controllers.CampaignController",
     "Method": "SendCampaign",
     "RelativePath": "api/campaign/send",
     "HttpMethod": "POST",
@@ -184,38 +215,6 @@
         "Name": "Recipients",
         "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "KiMa_API.Controllers.CampaignController",
-    "Method": "AddSubscriber",
-    "RelativePath": "api/campaign/subscriber/add",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dto",
-        "Type": "KiMa_API.Controllers.EmailDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "KiMa_API.Controllers.CampaignController",
-    "Method": "RemoveSubscriber",
-    "RelativePath": "api/campaign/subscriber/remove",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dto",
-        "Type": "KiMa_API.Controllers.EmailDto",
-        "IsRequired": true
       }
     ],
     "ReturnTypes": []

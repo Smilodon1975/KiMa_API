@@ -1,6 +1,8 @@
-﻿using KiMa_API.Services;
+﻿using KiMa_API.Data;
+using KiMa_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace KiMa_API.Controllers
 {
@@ -10,35 +12,45 @@ namespace KiMa_API.Controllers
     public class CampaignController : ControllerBase
     {
         private readonly IEmailCampaignService _campaignService;
+        private readonly AppDbContext _dbContext;
 
-        public CampaignController(IEmailCampaignService campaignService)
+        public CampaignController(IEmailCampaignService campaignService, AppDbContext dbContext)
         {
             _campaignService = campaignService;
+            _dbContext = dbContext;
         }
 
-        /// <summary>
-        /// (No-Op bei ACS) Fügt einen Subscriber hinzu.
-        /// </summary>
-        [HttpPost("subscriber/add")]
-        public async Task<IActionResult> AddSubscriber([FromBody] EmailDto dto)
+        [HttpGet("campaignUsers")]
+        public async Task<PaginatedResult<CampaignUser>> GetUsers(
+             [FromQuery] int page = 1,
+             [FromQuery] int pageSize = 10)
         {
-            await _campaignService.AddSubscriberAsync(dto.Email);
-            return Ok(new { message = "Subscriber hinzugefügt." });
+            var query = _dbContext.Users
+                .Select(u => new CampaignUser
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    UserName = u.UserName,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    NewsletterSub = u.NewsletterSub
+                });
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginatedResult<CampaignUser>
+            {
+                Items = items,
+                TotalCount = total
+            };
         }
 
-        /// <summary>
-        /// (No-Op bei ACS) Entfernt einen Subscriber.
-        /// </summary>
-        [HttpPost("subscriber/remove")]
-        public async Task<IActionResult> RemoveSubscriber([FromBody] EmailDto dto)
-        {
-            await _campaignService.RemoveSubscriberAsync(dto.Email);
-            return Ok(new { message = "Subscriber entfernt." });
-        }
 
-        /// <summary>
-        /// Sendet eine Kampagne mit Anhang an alle angegebenen Empfänger.
-        /// </summary>
         [HttpPost("send")]
         public async Task<IActionResult> SendCampaign([FromForm] CampaignDto dto)
         {
@@ -57,26 +69,32 @@ namespace KiMa_API.Controllers
         }
     }
 
-    /// <summary>
-    /// DTO für eine einzelne E-Mail-Adresse
-    /// </summary>
-    public class EmailDto
-    {
-        public string Email { get; set; } = string.Empty;
-    }
+            public class EmailDto
+            {
+                public string Email { get; set; } = string.Empty;
+            }
 
-    /// <summary>
-    /// DTO für den Kampagnen-Versand
-    /// </summary>
-    public class CampaignDto
-    {
-        /// <summary>Name/Titel der Kampagne</summary>
-        public string CampaignName { get; set; } = string.Empty;
+   
+            public class CampaignDto
+            {
+                public string CampaignName { get; set; } = string.Empty;
+                public IFormFile Attachment { get; set; } = default!;
+                public List<string> Recipients { get; set; } = new();
+            }
 
-        /// <summary>Hochgeladene Datei (z. B. PDF oder Word)</summary>
-        public IFormFile Attachment { get; set; } = default!;
+            public class PaginatedResult<T>
+            {
+                public List<T> Items { get; set; } = new();
+                public int TotalCount { get; set; }
+            }
 
-        /// <summary>Liste der Empfänger-E-Mail-Adressen</summary>
-        public List<string> Recipients { get; set; } = new();
-    }
+            public class CampaignUser
+            {
+                public int Id { get; set; }
+                public string Email { get; set; } = string.Empty;
+                public string? UserName { get; set; }
+                public string? FirstName { get; set; }
+                public string? LastName { get; set; }
+                public bool NewsletterSub { get; set; }
+            }
 }

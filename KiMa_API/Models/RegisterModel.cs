@@ -15,7 +15,7 @@ namespace KiMa_API.Models
         [MinLength(8, ErrorMessage = "Passwort muss mindestens 8 Zeichen lang sein.")]
         public required string Password { get; set; }
 
-        public bool DataConsent { get; set; } = true;
+        public bool NewsletterSub { get; set; } = true;
 
         public string? UserName { get; set; }
     }

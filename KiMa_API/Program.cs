@@ -155,7 +155,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 });
 
-builder.Services.AddScoped<IEmailCampaignService, AzureEmailCampaignService>();
+builder.Services.AddScoped<IEmailCampaignService, EmailCampaignService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddScoped<IAdminService, AdminService>();

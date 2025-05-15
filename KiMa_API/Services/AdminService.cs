@@ -81,7 +81,7 @@ namespace KiMa_API.Services
             user.Zip = updateDto.Zip ?? user.Zip;
             user.City = updateDto.City ?? user.City;
             user.Country = updateDto.Country ?? user.Country;
-            user.DataConsent = updateDto.DataConsent ?? user.DataConsent;
+            user.NewsletterSub = updateDto.NewsletterSub ?? user.NewsletterSub;
 
             if (!string.IsNullOrEmpty(updateDto.Password))
             {

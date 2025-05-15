@@ -632,10 +632,10 @@ C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.KiMa_API.props
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.KiMa_API.props
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets.pack.json
-C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\KiMa_API.csproj.Up2Date
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\KiMa_API.dll
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\refint\KiMa_API.dll
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\KiMa_API.pdb
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\KiMa_API.genruntimeconfig.cache
 C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\ref\KiMa_API.dll
+C:\Users\andre\Documents\KiMa\KiMa_API\KiMa_API\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

@@ -38,7 +38,7 @@ namespace KiMa_API.Models.Dto
         public string? Country { get; set; }
         public string? Role { get; set; }
         public string? Password { get; set; }
-        public bool? DataConsent { get; set; }
+        public bool? NewsletterSub { get; set; }
         public UserProfileUpdateDto? Profile { get; set; }
 
     }

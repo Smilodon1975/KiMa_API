@@ -64,7 +64,7 @@ namespace KiMa_API.Controllers
                                      ? model.Email
                                      : model.UserName,
                 NormalizedUserName = (model.UserName ?? model.Email).ToUpper(),
-                DataConsent = true  // Newsletter-Opt-In direkt setzen
+                NewsletterSub = true
             };
 
             // Anmelden

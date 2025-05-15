@@ -42,7 +42,7 @@ namespace KiMa_API.Models
         public string? Country { get; set; } = null;
 
         // ✅ Data Consent
-        public bool DataConsent { get; set; } = false;
+        public bool NewsletterSub { get; set; } = false;
 
         public virtual UserProfile? UserProfile { get; set; }
 

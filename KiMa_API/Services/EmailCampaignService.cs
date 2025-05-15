@@ -2,12 +2,12 @@
 
 namespace KiMa_API.Services
 {
-    public class AzureEmailCampaignService : IEmailCampaignService
+    public class EmailCampaignService : IEmailCampaignService
     {
         private readonly EmailClient _emailClient;
         private readonly string _fromAddress;
 
-        public AzureEmailCampaignService(EmailClient emailClient, IConfiguration config)
+        public EmailCampaignService(EmailClient emailClient, IConfiguration config)
         {
             _emailClient = emailClient;
             _fromAddress = config["EmailSettings:FromEmail"]
