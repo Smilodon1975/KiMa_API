@@ -40,3 +40,5 @@ packages/
 
 # Weitere spezifische Dateien
 *.vsidx
+bin/
+obj/
