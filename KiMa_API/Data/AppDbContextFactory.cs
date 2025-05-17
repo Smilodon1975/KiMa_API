@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
+
 namespace KiMa_API.Data
 {
     public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
