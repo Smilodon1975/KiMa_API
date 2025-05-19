@@ -48,7 +48,8 @@ namespace KiMa_API.Services
             {
                 Email = model.Email ?? throw new ArgumentNullException(nameof(model.Email)),
                 UserName = string.IsNullOrWhiteSpace(model.UserName) ? model.Email : model.UserName,
-                NormalizedUserName = (model.UserName ?? model.Email).ToUpper()
+                NormalizedUserName = (model.UserName ?? model.Email).ToUpper(),
+                NewsletterSub = model.NewsletterSub
             };
             var result = await _userManager.CreateAsync(user, model.Password!);
             if (!result.Succeeded)
@@ -63,9 +64,8 @@ namespace KiMa_API.Services
             var confirmLink = $"{frontendUrl}/confirm-email?token={WebUtility.UrlEncode(token)}&email={WebUtility.UrlEncode(user.Email)}";
 
             // 4️⃣ Mail abschicken
-            await _mailService.SendEmailConfirmationEmailAsync(
+            await _mailService.SendWelcomeEmailAsync(
                 user.Email,
-                token,
                 user.UserName
             );
 

@@ -26,6 +26,26 @@ namespace KiMa_API.Services
             _frontendBaseUrl = _config["AppSettings:FrontendBaseUrl"] ?? "https://kimafo.info";
         }
 
+
+        private async Task<bool> SendAsync(string toEmail, EmailContent content)
+        {
+            var recipients = new EmailRecipients(new[] { new EmailAddress(toEmail) });
+            var message = new EmailMessage(_fromAddress, recipients, content);
+
+            try
+            {
+                var response = await _emailClient.SendAsync(WaitUntil.Completed, message);
+                return response.Value.Status == EmailSendStatus.Succeeded;
+            }
+            catch (RequestFailedException ex)
+            {
+                Console.WriteLine($"[ERROR] E-Mail-Versand fehlgeschlagen: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
         public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetToken, string userName)
         {
             var resetLink = $"{_frontendBaseUrl}/reset-password?token={WebUtility.UrlEncode(resetToken)}"
@@ -77,21 +97,50 @@ namespace KiMa_API.Services
             return await SendAsync(toEmail, content);
         }
 
-        private async Task<bool> SendAsync(string toEmail, EmailContent content)
-        {
-            var recipients = new EmailRecipients(new[] { new EmailAddress(toEmail) });
-            var message = new EmailMessage(_fromAddress, recipients, content);
 
-            try
+
+        public async Task<bool> SendWelcomeEmailAsync(string toEmail, string userName)
+        {
+            // Basis‐URL aus Config
+            var frontendUrl = _config["Frontend:BaseUrl"]
+                             ?? throw new InvalidOperationException("Missing Frontend:BaseUrl");
+            // Achte auf den richtigen Ordnernamen (hier "images" in Kleinbuchstaben)
+            var logoUrl = $"{frontendUrl}/assets/images/kima_logo_gruen_rot_rgb.png";
+            var loginLink = $"{frontendUrl}/login";
+
+            // HTML‐Template als verbatim-Interpolated String:
+            var html = $@"
+            <div style=""font-family:sans-serif;line-height:1.4;"">
+              <p>
+                <img src=""{logoUrl}"" alt=""KiMa Logo"" style=""width:120px;"" />
+              </p>
+              <h1>Hallo {WebUtility.HtmlEncode(userName)},</h1>
+              <p>Willkommen bei <strong>KiMa</strong>! 🎉</p>
+              <p>Wir freuen uns sehr, dass du jetzt Teil unseres Teams bist.</p>
+              <p>
+                <a href=""{loginLink}"" style=""display:inline-block;padding:10px 20px;
+                   background-color:#0078D4;color:white;text-decoration:none;
+                   border-radius:4px;"">
+                  Jetzt einloggen
+                </a>
+              </p>
+              <hr style=""border:none;border-top:1px solid #eee;"" />
+              <p style=""font-size:0.8em;color:#666;"">
+                Dies ist eine automatisch generierte Mail – bitte antworte nicht direkt darauf.
+              </p>
+            </div>";
+
+            var content = new EmailContent("Willkommen bei KiMa")
             {
-                var response = await _emailClient.SendAsync(WaitUntil.Completed, message);
-                return response.Value.Status == EmailSendStatus.Succeeded;
-            }
-            catch (RequestFailedException ex)
-            {
-                Console.WriteLine($"[ERROR] E-Mail-Versand fehlgeschlagen: {ex.Message}");
-                return false;
-            }
+                PlainText = $"Hallo {userName},\n\nWillkommen bei KiMa! …\n\nZum Einloggen: {loginLink}",
+                Html = html
+            };
+
+            return await SendAsync(toEmail, content);
         }
+
+
+
+
     }
 }
