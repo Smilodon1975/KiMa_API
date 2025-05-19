@@ -16,13 +16,13 @@ namespace KiMa_API.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IAuthService _authService;
         private readonly JwtService _jwtService;
-        private readonly ILogger<AuthService> _logger;
+        private readonly ILogger<AuthController> _logger;
         private readonly IMailService _mailService;
 
 
         /// Konstruktor mit Dependency Injection für Benutzerverwaltung, Authentifizierungs- und JWT-Services.
 
-        public AuthController(UserManager<User> userManager, IAuthService authService, JwtService jwtService, ILogger<AuthService> logger, IMailService mailService)
+        public AuthController(UserManager<User> userManager, IAuthService authService, JwtService jwtService, ILogger<AuthController> logger, IMailService mailService)
         {
             _userManager = userManager;
             _authService = authService;
@@ -49,29 +49,24 @@ namespace KiMa_API.Controllers
         /// Registriert einen neuen Benutzer und gibt eine Erfolgsmeldung zurück.
 
         [HttpPost("register")]
-        public async Task<IdentityResult> RegisterAsync(RegisterModel model)
+        public async Task<IActionResult> RegisterAsync(RegisterModel model)
         {
-            if (model.Email is null)
-                throw new ArgumentNullException(nameof(model.Email));
-            if (model.Password is null)
-                throw new ArgumentNullException(nameof(model.Password));
+            if (model == null || string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Password))
+                return BadRequest("E-Mail und Passwort sind erforderlich.");
 
-            // User anlegen – alle erforderlichen Felder
-            var user = new User
-            {
-                Email = model.Email,
-                UserName = string.IsNullOrWhiteSpace(model.UserName)
-                                     ? model.Email
-                                     : model.UserName,
-                NormalizedUserName = (model.UserName ?? model.Email).ToUpper(),
-                NewsletterSub = true
-            };
+            var result = await _authService.RegisterAsync(model);
 
-            // Anmelden
-            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors); // Return BadRequest as IActionResult
 
-            return result;
+            return Ok(new { message = "Registrierung erfolgreich – bitte bestätige deine E-Mail-Adresse." });
         }
+
+
+
+
+
+        
 
 
 

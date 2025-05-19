@@ -9,9 +9,9 @@
         /// Sendet eine E-Mail mit einem Passwort-Reset-Token an den Benutzer.
         /// <returns>True, wenn die E-Mail erfolgreich versendet wurde, andernfalls False.</returns>
         Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetToken, string userName);
-
         Task<bool> SendEmailConfirmationEmailAsync(string toEmail, string confirmationToken, string userName);
         Task<bool> SendPasswordChangedNotificationEmailAsync(string toEmail, string userName);
+        Task<bool> SendWelcomeEmailAsync(string toEmail, string userName);
 
 
     }
