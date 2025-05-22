@@ -13,14 +13,7 @@ namespace KiMa_API.Data
 
         // Konstruktor für die Konfiguration der Datenbankoptionen.
 
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {// sofort beim Öffnen auf WAL umschalten
-            var conn = Database.GetDbConnection();
-            conn.Open();
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = "PRAGMA journal_mode=WAL;";
-            cmd.ExecuteNonQuery();
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options){}
 
         public DbSet<FAQ> FAQs { get; set; }
         public DbSet<News> News { get; set; }
