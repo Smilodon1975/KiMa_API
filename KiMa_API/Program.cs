@@ -14,21 +14,38 @@ using Azure.Communication.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+var defaultConn = builder.Configuration
+    .GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Missing DefaultConnection");
+
 // 1. Datenbank-Konfiguration
 if (builder.Environment.IsDevelopment())
 {
+    // Development → SQLite
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+        options.UseSqlite(
+            defaultConn,
+            sqliteOptions =>
+            {
+                // Damit bei SQLite WAL (parallel lesbar/schreibbar) verwendet wird:
+                sqliteOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+            }
+        )
     );
 }
 else
 {
-    var mysqlConn = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("Missing DefaultConnection");
+    // Production (bzw. alles andere) → MySQL
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseMySql(mysqlConn, ServerVersion.AutoDetect(mysqlConn))
+        options.UseMySql(
+            defaultConn,
+            ServerVersion.AutoDetect(defaultConn)
+        )
     );
 }
+
 
 // 2. Azure Communication EmailClient
 builder.Services.AddSingleton(sp =>

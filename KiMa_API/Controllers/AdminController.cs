@@ -51,7 +51,7 @@ namespace KiMa_API.Controllers
         }
       
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto updateDto)
+        public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDto updateDto)
         {
             var success = await _adminService.UpdateUserAsync(updateDto);
             if (!success)
