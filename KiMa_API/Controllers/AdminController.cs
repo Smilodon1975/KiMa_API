@@ -60,9 +60,9 @@ namespace KiMa_API.Controllers
             return Ok(new { message = "Benutzer erfolgreich aktualisiert!" });
         }        
     }
-        public class SetRoleModel
-        {
-            public int UserId { get; set; }
-            public string Role { get; set; }
-        }    
+    public class SetRoleModel
+    {
+        public int UserId { get; set; }
+        public string Role { get; set; } = "Proband"; // Fix: Initialize the property with a default value
+    }
 }

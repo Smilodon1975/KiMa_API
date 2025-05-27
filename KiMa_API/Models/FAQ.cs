@@ -9,10 +9,10 @@ namespace KiMa_API.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Die Frage ist erforderlich.")]
-        public string Question { get; set; }
+        public required string Question { get; set; }
 
         [Required(ErrorMessage = "Die Antwort ist erforderlich.")]
-        public string Answer { get; set; }
+        public required string Answer { get; set; }
 
         // Optional: Sortierreihenfolge, Kategorie, etc.
         [Column("SortOrder")]
