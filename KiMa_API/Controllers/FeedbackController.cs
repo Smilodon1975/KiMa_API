@@ -12,6 +12,7 @@ namespace KiMa_API.Controllers
 
         public FeedbackController(IFeedbackService feedback) => _feedback = feedback;
 
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] FeedbackDto dto)
         {

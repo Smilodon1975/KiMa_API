@@ -77,7 +77,8 @@ namespace RapidmailImporter.Services
                             LastName = record.Lastname,
                             Title = record.Title,
                             Gender = record.Gender,
-                            Zip = record.Zip
+                            Zip = record.Zip,
+                            NewsletterSub = true
                         };
                         _dbContext.Users.Add(user);
                         inserted++;

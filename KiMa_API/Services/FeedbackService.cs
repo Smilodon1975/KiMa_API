@@ -2,6 +2,7 @@
 using KiMa_API.Models;
 using KiMa_API.Models.Dto;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace KiMa_API.Services
 {
@@ -16,30 +17,81 @@ namespace KiMa_API.Services
             _mail = mail;
         }
 
+        //public async Task SubmitAsync(FeedbackDto dto)
+        //{
+        //    string? email = dto.Email;
+
+        //    if (dto.UserId.HasValue)
+        //    {
+        //        var user = await _ctx.Users.FindAsync(dto.UserId.Value);
+        //        if (user is not null)
+        //            email = user.Email;
+        //    }
+
+        //    var fb = new Feedback
+        //    {
+        //        UserId = dto.UserId,
+        //        Email = email,
+        //        Content = dto.Content
+        //    };
+        //    _ctx.Feedbacks.Add(fb);
+        //    await _ctx.SaveChangesAsync();
+
+        //    var adminEmail = "techsupport@kimafo.de";
+        //    var subject = "Neues Feedback bei KiMa";
+        //    var htmlBody = $@"
+        //    <p><strong>Von:</strong> {WebUtility.HtmlEncode(dto.Email ?? "Gast")}</p>
+        //    <p><strong>Inhalt:</strong><br/>{WebUtility.HtmlEncode(dto.Content)}</p>
+        //";
+        //    var textBody = $"Von: {dto.Email ?? "Gast"}\nInhalt: {dto.Content}";
+
+        //    await _mail.SendNotificationEmailAsync( adminEmail, subject, htmlBody,textBody);
+        //}
+
         public async Task SubmitAsync(FeedbackDto dto)
         {
+            // 1️⃣ echten Absender ermitteln
+            string senderEmail = dto.Email ?? "Gast";
+            string senderName = "Gast";
+
+            if (dto.UserId.HasValue)
+            {
+                var user = await _ctx.Users.FindAsync(dto.UserId.Value);
+                if (user is not null)
+                {
+                    senderEmail = user.Email!;
+                    // wenn du zusätzlich den Username zeigen willst:
+                    senderName = string.IsNullOrWhiteSpace(user.UserName)
+                        ? senderEmail
+                        : user.UserName;
+                }
+            }
+
+            // 2️⃣ Feedback in DB speichern
             var fb = new Feedback
             {
                 UserId = dto.UserId,
-                Email = dto.Email,
+                Email = senderEmail,
                 Content = dto.Content
             };
             _ctx.Feedbacks.Add(fb);
             await _ctx.SaveChangesAsync();
 
-            // E-Mail an Admin
-            var subject = "Neues Test-Feedback von KiMa";
-            var body = $"<p><strong>Von:</strong> {dto.Email ?? "Gast"}</p>" +
-                       $"<p><strong>Inhalt:</strong><br/>{dto.Content}</p>";
-            await SendEmailAsync("techsupport@kimafo.de", subject, body);
+            // 3️⃣ Mail an Admin zusammenbauen
+            var subject = "Neues Feedback bei KiMa";
+            var body =
+                $"<p><strong>Von:</strong> {WebUtility.HtmlEncode(senderName)} &lt;{WebUtility.HtmlEncode(senderEmail)}&gt;</p>" +
+                $"<p><strong>Inhalt:</strong><br/>{WebUtility.HtmlEncode(dto.Content).Replace("\n", "<br/>")}</p>";
+
+            // 4️⃣ Mail verschicken (hier nutzt du deinen MailService)
+            await _mail.SendNotificationEmailAsync(
+                toEmail: "techsupport@kimafo.de",
+                subject: subject,
+                htmlContent: body
+            );
         }
 
-        private async Task<bool> SendEmailAsync(string toEmail, string subject, string body)
-        {
-            // Assuming IMailService does not have a generic SendEmailAsync method,
-            // you can implement a helper method to use one of the existing methods.
-            return await _mail.SendEmailConfirmationEmailAsync(toEmail, subject, body);
-        }
+
 
         public async Task<List<Feedback>> GetAllAsync()
             => await _ctx.Feedbacks.OrderByDescending(f => f.CreatedAt).ToListAsync();

@@ -45,6 +45,21 @@ namespace KiMa_API.Services
         }
 
 
+        public async Task<bool> SendNotificationEmailAsync(string toEmail, string subject, string htmlContent, string plainTextContent = null)
+        {
+            var content = new EmailContent(subject)
+            {
+                Html = htmlContent,
+                PlainText = plainTextContent
+            };
+
+            // Nutze deine interne Send-Methode:
+            return await SendAsync(toEmail, content);
+        }
+
+        
+
+
 
         public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string resetToken, string userName)
         {
@@ -63,23 +78,7 @@ namespace KiMa_API.Services
             return await SendAsync(toEmail, content);
         }
 
-        public async Task<bool> SendEmailConfirmationEmailAsync(string toEmail, string confirmationToken, string userName)
-        {
-            var confirmationLink = $"{_frontendBaseUrl}/confirm-email?token={WebUtility.UrlEncode(confirmationToken)}"
-                                 + $"&email={WebUtility.UrlEncode(toEmail)}"
-                                 + $"&userName={WebUtility.UrlEncode(userName)}";
-
-            var content = new EmailContent("E-Mail Bestätigung")
-            {
-                PlainText = $"Hallo {userName},\nBitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst: {confirmationLink}",
-                Html = $"<p>Hallo {WebUtility.HtmlEncode(userName)},</p>"
-                     + $"<p>Bitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst:</p>"
-                     + $"<p><a href='{confirmationLink}'>E-Mail bestätigen</a></p>"
-            };
-
-            return await SendAsync(toEmail, content);
-        }
-
+       
         public async Task<bool> SendPasswordChangedNotificationEmailAsync(string toEmail, string userName)
         {
             var subject = "Dein Passwort wurde geändert";
@@ -141,6 +140,23 @@ namespace KiMa_API.Services
 
 
 
+
+        public async Task<bool> SendEmailConfirmationEmailAsync(string toEmail, string confirmationToken, string userName)
+        {
+            var confirmationLink = $"{_frontendBaseUrl}/confirm-email?token={WebUtility.UrlEncode(confirmationToken)}"
+                                 + $"&email={WebUtility.UrlEncode(toEmail)}"
+                                 + $"&userName={WebUtility.UrlEncode(userName)}";
+
+            var content = new EmailContent("E-Mail Bestätigung")
+            {
+                PlainText = $"Hallo {userName},\nBitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst: {confirmationLink}",
+                Html = $"<p>Hallo {WebUtility.HtmlEncode(userName)},</p>"
+                     + $"<p>Bitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst:</p>"
+                     + $"<p><a href='{confirmationLink}'>E-Mail bestätigen</a></p>"
+            };
+
+            return await SendAsync(toEmail, content);
+        }
 
     }
 }

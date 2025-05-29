@@ -12,7 +12,7 @@
         Task<bool> SendEmailConfirmationEmailAsync(string toEmail, string confirmationToken, string userName);
         Task<bool> SendPasswordChangedNotificationEmailAsync(string toEmail, string userName);
         Task<bool> SendWelcomeEmailAsync(string toEmail, string userName);
-
+        Task<bool> SendNotificationEmailAsync(string toEmail, string subject, string htmlContent, string plainTextContent = null);
 
     }
 }
