@@ -17,36 +17,7 @@ namespace KiMa_API.Services
             _mail = mail;
         }
 
-        //public async Task SubmitAsync(FeedbackDto dto)
-        //{
-        //    string? email = dto.Email;
-
-        //    if (dto.UserId.HasValue)
-        //    {
-        //        var user = await _ctx.Users.FindAsync(dto.UserId.Value);
-        //        if (user is not null)
-        //            email = user.Email;
-        //    }
-
-        //    var fb = new Feedback
-        //    {
-        //        UserId = dto.UserId,
-        //        Email = email,
-        //        Content = dto.Content
-        //    };
-        //    _ctx.Feedbacks.Add(fb);
-        //    await _ctx.SaveChangesAsync();
-
-        //    var adminEmail = "techsupport@kimafo.de";
-        //    var subject = "Neues Feedback bei KiMa";
-        //    var htmlBody = $@"
-        //    <p><strong>Von:</strong> {WebUtility.HtmlEncode(dto.Email ?? "Gast")}</p>
-        //    <p><strong>Inhalt:</strong><br/>{WebUtility.HtmlEncode(dto.Content)}</p>
-        //";
-        //    var textBody = $"Von: {dto.Email ?? "Gast"}\nInhalt: {dto.Content}";
-
-        //    await _mail.SendNotificationEmailAsync( adminEmail, subject, htmlBody,textBody);
-        //}
+        
 
         public async Task SubmitAsync(FeedbackDto dto)
         {

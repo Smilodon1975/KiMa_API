@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Azure.Communication.Email;
+using KiMa_API.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -161,9 +162,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 // 8. Applikations-Services
+builder.Services.AddScoped<IProjectResponseService, ProjectResponseService>();
 builder.Services.AddScoped<IEmailCampaignService, EmailCampaignService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<INewsService, NewsService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -171,6 +174,7 @@ builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFAQService, FAQService>();
 builder.Services.AddScoped<JwtService>();
+
 
 var app = builder.Build();
 

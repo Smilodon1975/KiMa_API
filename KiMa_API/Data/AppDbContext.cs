@@ -20,6 +20,8 @@ namespace KiMa_API.Data
         public DbSet<NewsletterSubscriber> NewsletterSubscribers { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectResponse> Responses { get; set; }
 
 
 
