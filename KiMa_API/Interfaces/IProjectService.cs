@@ -12,6 +12,7 @@ namespace KiMa_API.Services
         Task<IEnumerable<Project>> GetAllAsync();
         Task<bool> UpdateAsync(Project project);
         Task<bool> DeleteAsync(int id);
-        
+        Task<bool> UpdateStatusAsync(int id, ProjectStatusDto dto);
+
     }
 }

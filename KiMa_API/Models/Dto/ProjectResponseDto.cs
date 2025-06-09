@@ -10,5 +10,6 @@ namespace KiMa_API.Models.Dto
         [Required]
         public string AnswersJson { get; set; } = "";
         public DateTime SubmittedAt { get; set; }
+        public ProjectStatus Status { get; set; }
     }
 }

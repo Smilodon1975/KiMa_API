@@ -9,6 +9,6 @@
         public DateTime SubmittedAt { get; set; } 
 
       
-        public Project? Project { get; set; }
+        public Project? Project { get; set; }       
     }
 }

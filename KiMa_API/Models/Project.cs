@@ -10,6 +10,8 @@
         public string? QuestionsJson { get; set; } = "[]";
 
         public ICollection<ProjectResponse>? Responses { get; set; }
+
+        public ProjectStatus Status { get; set; } = ProjectStatus.Draft;
     }    
     
 }

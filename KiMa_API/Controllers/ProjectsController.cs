@@ -55,6 +55,15 @@ namespace KiMa_API.Controllers
             return success ? NoContent() : NotFound();
         }
 
-        
+
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] ProjectStatusDto dto)
+        {
+            var success = await _projectService.UpdateStatusAsync(id, dto);
+            if (!success) return NotFound();
+            return NoContent();
+        }
+
+
     }
 }

@@ -23,7 +23,7 @@ namespace KiMa_API.Services
                 ProjectId = dto.ProjectId,
                 RespondentEmail = dto.RespondentEmail,
                 AnswersJson = dto.AnswersJson,
-                SubmittedAt = DateTime.Now
+                SubmittedAt = DateTime.Now,                
             };
 
             // 2. Speichern

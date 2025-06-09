@@ -53,6 +53,19 @@ namespace KiMa_API.Services
             _ctx.Projects.Remove(project);
             await _ctx.SaveChangesAsync();
             return true;
-        }        
+        }
+
+
+        public async Task<bool> UpdateStatusAsync(int id, ProjectStatusDto dto)
+        {
+            var project = await _ctx.Projects.FindAsync(id);
+            if (project == null) return false;
+
+            project.Status = dto.Status;
+            await _ctx.SaveChangesAsync();
+            return true;
+        }
+
+
     }
 }
