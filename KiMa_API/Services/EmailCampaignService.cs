@@ -1,4 +1,6 @@
-﻿using Azure.Communication.Email;
+﻿using Azure;
+using Azure.Communication.Email;
+using System.Net;
 
 namespace KiMa_API.Services
 {
@@ -18,48 +20,80 @@ namespace KiMa_API.Services
         public Task AddSubscriberAsync(string email) => Task.CompletedTask;
         public Task RemoveSubscriberAsync(string email) => Task.CompletedTask;
 
-       
-        // Sendet eine Kampagne mit Anhang an die Empfänger.      
         public async Task SendCampaignAsync(
-    string campaignName,
-    Stream attachmentStream,
-    string fileName,
-    IEnumerable<string> recipientEmails
-)
+            string campaignName,
+            string subject,
+            string body,
+            string link,
+            IEnumerable<string> recipientEmails,
+            Stream? attachmentStream,
+            string? attachmentFileName)
         {
             // E-Mail-Inhalt
-            var content = new EmailContent(campaignName)
+            var htmlBody = $@"
+              <html>
+                <body>
+                  <!-- Überschrift mit dem Campaign-Name -->
+                  <h1 style=""font-family:Arial,sans-serif;color:#333;margin-bottom:1rem;"">
+                    {WebUtility.HtmlEncode(campaignName)}
+                  </h1>
+
+                  <!-- Der eigentliche Body-Text -->
+                  <div style=""font-family:Arial,sans-serif;color:#555;margin-bottom:1.5rem;"">
+                    {WebUtility.HtmlEncode(body).Replace("\n", "<br/>")}
+                  </div>
+
+                  <!-- Link, der statt 'Link' nun den Projektnamen anzeigt -->
+                  <p>
+                    <a href=""{link}"" 
+                       style=""display:inline-block;padding:0.5rem 1rem;
+                              background:#16A085;color:#fff;
+                              text-decoration:none;border-radius:4px;"">
+                      {WebUtility.HtmlEncode(campaignName)}
+                    </a>
+                  </p>
+                </body>
+              </html>";
+
+            var content = new EmailContent(subject)
             {
-                PlainText = "Bitte finden Sie die angehängte Projektinformation.",
-                Html = "<p>Bitte finden Sie im Anhang die Projektinformation als PDF.</p>"
+                PlainText = body,
+                Html = htmlBody
             };
 
-            // Anhang erstellen
-            var bytes = ReadAllBytes(attachmentStream);
-            var attachment = new EmailAttachment(
-                name: fileName,
-                content: BinaryData.FromBytes(bytes),
-                contentType: "application/pdf"
-            );
-
-            // Empfängerliste erzeugen
-            var toAddresses = recipientEmails
-                .Select(addr => new EmailAddress(addr))
-                .ToList();
-            var recipients = new EmailRecipients(toAddresses);
-
-            // Nachricht erstellen
-            var message = new EmailMessage(_fromAddress, recipients, content)
+            // Attachments are not directly supported by EmailContent. Instead, use EmailMessage.Attachments.
+            var attachments = new List<EmailAttachment>();
+            if (attachmentStream is not null && !string.IsNullOrEmpty(attachmentFileName))
             {
-                Attachments = { attachment } // Attachments are added here
-            };
+                using var ms = new MemoryStream();
+                await attachmentStream.CopyToAsync(ms);
 
-            // Replace the problematic line with the following:
-            var response = await _emailClient.SendAsync(Azure.WaitUntil.Completed, message);
-            if (response.Value.Status != EmailSendStatus.Succeeded)
-            {
-                throw new InvalidOperationException($"E-Mail-Versand fehlgeschlagen: {response.Value.Status}");
+                attachments.Add(new EmailAttachment(
+                    attachmentFileName,
+                    "application/octet-stream",
+                    BinaryData.FromBytes(ms.ToArray())
+                ));
             }
+
+            // Empfängerliste
+            var to = recipientEmails.Select(email => new EmailAddress(email)).ToList();
+            var recipients = new EmailRecipients(to);
+
+            // Nachricht verschicken
+            var message = new EmailMessage(_fromAddress, recipients, content);
+
+            // Fix for CS0200: Attachments property is read-only. Use Add method instead.
+            foreach (var attachment in attachments)
+            {
+                message.Attachments.Add(attachment);
+            }
+
+            var response = await _emailClient.SendAsync(WaitUntil.Completed, message);
+
+            if (response.Value.Status != EmailSendStatus.Succeeded)
+                throw new InvalidOperationException(
+                    $"E-Mail Versand fehlgeschlagen: {response.Value.Status}"
+                );
         }
 
         private static byte[] ReadAllBytes(Stream stream)

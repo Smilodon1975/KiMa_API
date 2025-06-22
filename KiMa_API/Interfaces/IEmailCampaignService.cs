@@ -5,11 +5,14 @@
         Task AddSubscriberAsync(string email);
         Task RemoveSubscriberAsync(string email);
         Task SendCampaignAsync(
-            string campaignName,
-            Stream attachmentStream,
-            string fileName,
-            IEnumerable<string> recipientEmails
-        );
+        string campaignName,
+        string subject,
+        string body,
+        string link,
+        IEnumerable<string> recipientEmails,
+        Stream? attachmentStream,
+        string? attachmentFileName
+    );
     }
 
 }

@@ -2,6 +2,7 @@
 using KiMa_API.Models.Dto;
 using KiMa_API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -65,5 +66,16 @@ namespace KiMa_API.Controllers
         }
 
 
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> Patch(int id, [FromBody] JsonPatchDocument<Project> patch)
+        {
+            var project = await _projectService.GetByIdAsync(id);
+            if (project == null) return NotFound();
+            patch.ApplyTo(project);
+            await _projectService.UpdateAsync(project);
+            return NoContent();
+        }
+
+ 
     }
 }

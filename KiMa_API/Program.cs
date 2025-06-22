@@ -1,17 +1,19 @@
-﻿using System;
-using System.Text;
-using KiMa_API.Data;
-using KiMa_API.Models;
-using KiMa_API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Azure.Communication.Email;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
 using KiMa_API.Interfaces;
+using KiMa_API.Services;
+using KiMa_API.Models;
+using KiMa_API.Data;
+using System.Text;
+using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -145,6 +147,15 @@ builder.Services.AddSwaggerGen(c =>
 
 // 7. Controllers & JSON-Optionen
 builder.Services.AddControllers()
+        .AddNewtonsoftJson(opts =>
+        {
+            // Ensure the following line remains unchanged:
+            opts.SerializerSettings.Converters.Add(new StringEnumConverter());
+            // Optional: ReferenceLoopHandling falls Du Beziehungen ignorieren möchtest
+            opts.SerializerSettings.ReferenceLoopHandling =
+                Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+        })
+
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(
@@ -161,6 +172,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+
 // 8. Applikations-Services
 builder.Services.AddScoped<IProjectResponseService, ProjectResponseService>();
 builder.Services.AddScoped<IEmailCampaignService, EmailCampaignService>();
@@ -174,6 +186,8 @@ builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFAQService, FAQService>();
 builder.Services.AddScoped<JwtService>();
+
+
 
 
 var app = builder.Build();

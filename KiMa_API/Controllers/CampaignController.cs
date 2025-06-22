@@ -20,16 +20,20 @@ namespace KiMa_API.Controllers
             _dbContext = dbContext;
         }
 
+
+        //====================================================================================================
+        //User für Versand abrufen
+
         [HttpGet("campaignUsers")]
         public async Task<PaginatedResult<CampaignUser>> GetUsers(
-             [FromQuery] int page = 1,
-             [FromQuery] int pageSize = 10)
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
             var query = _dbContext.Users
                 .Select(u => new CampaignUser
                 {
                     Id = u.Id,
-                    Email = u.Email,
+                    Email = u.Email ?? string.Empty,
                     UserName = u.UserName,
                     FirstName = u.FirstName,
                     LastName = u.LastName,
@@ -51,24 +55,40 @@ namespace KiMa_API.Controllers
         }
 
 
-        [HttpPost("send")]
-        public async Task<IActionResult> SendCampaign([FromForm] CampaignDto dto)
-        {
-            if (dto.Attachment == null || dto.Recipients == null || dto.Recipients.Count == 0)
-                return BadRequest("Anhang und Empfänger sind erforderlich.");
+        //====================================================================================================
+        //Email versenden
 
-            await using var stream = dto.Attachment.OpenReadStream();
+        [HttpPost("send")]
+        public async Task<IActionResult> SendCampaign([FromForm] CampaignDto dto, IFormFile? attachment)
+        {
+            if (dto.Recipients == null || dto.Recipients.Count == 0)
+                return BadRequest("Empfänger sind erforderlich.");
+
+            Stream? stream = null;
+            string? filename = null;
+            if (attachment != null && attachment.Length > 0)
+            {
+                filename = Path.GetFileName(attachment.FileName);
+                stream = attachment.OpenReadStream();
+            }
+
             await _campaignService.SendCampaignAsync(
                 dto.CampaignName,
+                dto.Subject,
+                dto.Body,
+                dto.Link,
+                dto.Recipients,
                 stream,
-                dto.Attachment.FileName,
-                dto.Recipients
+                filename
             );
 
             return Ok(new { message = "Kampagne versendet." });
         }
     }
 
+
+    //====================================================================================================
+            //DTO´s
             public class EmailDto
             {
                 public string Email { get; set; } = string.Empty;
@@ -78,9 +98,11 @@ namespace KiMa_API.Controllers
             public class CampaignDto
             {
                 public string CampaignName { get; set; } = string.Empty;
-                public IFormFile Attachment { get; set; } = default!;
                 public List<string> Recipients { get; set; } = new();
-            }
+                public string Subject { get; set; } = string.Empty;
+                public string Body { get; set; } = string.Empty;
+                public string Link { get; set; } = string.Empty;
+    }
 
             public class PaginatedResult<T>
             {
