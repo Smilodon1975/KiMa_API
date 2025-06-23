@@ -5,7 +5,7 @@
 namespace KiMa_API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddMissingProjectColumns : Migration
+    public partial class Baseline : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

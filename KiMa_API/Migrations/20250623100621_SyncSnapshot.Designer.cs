@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KiMa_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250623082427_AddMissingProjectColumns")]
-    partial class AddMissingProjectColumns
+    [Migration("20250623100621_SyncSnapshot")]
+    partial class SyncSnapshot
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

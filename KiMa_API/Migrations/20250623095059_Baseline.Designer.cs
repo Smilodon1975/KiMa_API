@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KiMa_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250622135719_Baseline")]
+    [Migration("20250623095059_Baseline")]
     partial class Baseline
     {
         /// <inheritdoc />

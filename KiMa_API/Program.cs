@@ -192,7 +192,11 @@ builder.Services.AddScoped<JwtService>();
 
 var app = builder.Build();
 
-// 9. Middleware-Pipeline
+
+
+
+
+//9.Middleware - Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -200,12 +204,33 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        // Hier siehst Du im Azure Logstream die genaue Fehlermeldung
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Fehler beim Anwenden von Migrationen");
+    }
+}
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    db.Database.Migrate();
+//}
+
+
+
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
-
-
 app.Run();
