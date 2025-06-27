@@ -23,7 +23,7 @@ namespace KiMa_API.Services
                 ProjectId = dto.ProjectId,
                 RespondentEmail = dto.RespondentEmail,
                 AnswersJson = dto.AnswersJson,
-                SubmittedAt = DateTime.Now,                
+                SubmittedAt = DateTime.Now,
             };
 
             // 2. Speichern
@@ -39,6 +39,17 @@ namespace KiMa_API.Services
                              .AsNoTracking()
                              .Where(r => r.ProjectId == projectId)
                              .ToListAsync();
+        }
+
+        public async Task<bool> HasRespondedAsync(int projectId, string respondentEmail)
+        {
+            return await _ctx.Responses
+                         .AsNoTracking()
+                         .AnyAsync(r =>
+                             r.ProjectId == projectId &&
+                             r.RespondentEmail == respondentEmail);
+
+
         }
     }
 }

@@ -7,5 +7,7 @@ namespace KiMa_API.Interfaces
     {
         Task<ProjectResponse> SubmitResponseAsync(ProjectResponseDto dto);
         Task<IEnumerable<ProjectResponse>> GetResponsesForProjectAsync(int projectId);
+        Task<bool> HasRespondedAsync(int projectId, string respondentEmail);
+
     }
 }

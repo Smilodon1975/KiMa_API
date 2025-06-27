@@ -34,5 +34,18 @@ namespace KiMa_API.Controllers
             var list = await _responseService.GetResponsesForProjectAsync(projectId);
             return Ok(list);
         }
+
+        [HttpGet("{projectId}/responses/hasResponded")]
+        public async Task<ActionResult<bool>> HasResponded(
+        int projectId,
+        [FromQuery] string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest("E-Mail darf nicht leer sein.");
+
+            var exists = await _responseService.HasRespondedAsync(projectId, email);
+            return Ok(exists);
+        }
+
     }
 }
