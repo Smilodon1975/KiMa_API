@@ -4,15 +4,12 @@
     {
         Task AddSubscriberAsync(string email);
         Task RemoveSubscriberAsync(string email);
-        Task SendCampaignAsync(
-        string campaignName,
-        string subject,
-        string body,
-        string link,
-        IEnumerable<string> recipientEmails,
-        Stream? attachmentStream,
+        Task SendCampaignAsync(string campaignName, string subject, string body,
+        string link, IEnumerable<string> recipientEmails, Stream? attachmentStream,
         string? attachmentFileName
-    );
+           );
+        Task SendNotificationAsync(string to, string subject, string body);
+
     }
 
 }

@@ -33,17 +33,20 @@ namespace KiMa_API.Services
             var htmlBody = $@"
               <html>
                 <body>
-                  <!-- Überschrift mit dem Campaign-Name -->
+                 
                   <h1 style=""font-family:Arial,sans-serif;color:#333;margin-bottom:1rem;"">
                     {WebUtility.HtmlEncode(campaignName)}
                   </h1>
 
-                  <!-- Der eigentliche Body-Text -->
+                  
                   <div style=""font-family:Arial,sans-serif;color:#555;margin-bottom:1.5rem;"">
                     {WebUtility.HtmlEncode(body).Replace("\n", "<br/>")}
-                  </div>
+                  </div>";
 
-                  <!-- Link, der statt 'Link' nun den Projektnamen anzeigt -->
+                  
+                    if (!string.IsNullOrWhiteSpace(link))
+                    {
+                        htmlBody += $@"
                   <p>
                     <a href=""{link}"" 
                        style=""display:inline-block;padding:0.5rem 1rem;
@@ -51,7 +54,9 @@ namespace KiMa_API.Services
                               text-decoration:none;border-radius:4px;"">
                       {WebUtility.HtmlEncode(campaignName)}
                     </a>
-                  </p>
+                  </p>";
+                    }
+                    htmlBody += @"
                 </body>
               </html>";
 
@@ -95,6 +100,22 @@ namespace KiMa_API.Services
                     $"E-Mail Versand fehlgeschlagen: {response.Value.Status}"
                 );
         }
+
+
+        public async Task SendNotificationAsync(string to, string subject, string body)
+        {
+            var content = new EmailContent(subject)
+            {
+                PlainText = body,
+                Html = $"<p>{WebUtility.HtmlEncode(body)}</p>"
+            };
+            var recipients = new EmailRecipients(new[] { new EmailAddress(to) });
+            var message = new EmailMessage(_fromAddress, recipients, content);
+
+            await _emailClient.SendAsync(WaitUntil.Completed, message);
+        }
+
+
 
         private static byte[] ReadAllBytes(Stream stream)
         {
