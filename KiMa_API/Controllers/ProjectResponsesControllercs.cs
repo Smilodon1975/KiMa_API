@@ -3,6 +3,9 @@ using KiMa_API.Models;
 using KiMa_API.Models.Dto;
 using KiMa_API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net;
+using System.Text;
 
 namespace KiMa_API.Controllers
 {
@@ -28,27 +31,67 @@ namespace KiMa_API.Controllers
 
 
         [HttpPost("{projectId}/responses")]
-        public async Task<ActionResult<ProjectResponse>> SubmitResponse(
-            int projectId, [FromBody] ProjectResponseDto dto)
+        public async Task<ActionResult<ProjectResponse>> SubmitResponse(int projectId, [FromBody] ProjectResponseDto dto)
         {
             if (projectId != dto.ProjectId)
                 return BadRequest("Projekt-ID stimmt nicht überein.");
 
+            // 1) Speichern
             var created = await _responseService.SubmitResponseAsync(dto);
 
-            var project = await _projectService.GetByIdAsync(projectId);
-            var projName = project?.Name ?? $"#{projectId}";
+            // 2) Projekt & Fragen laden
+            var project = await _projectService.GetByIdAsync(projectId)
+                          ?? throw new InvalidOperationException($"Projekt {projectId} nicht gefunden");
+            var projName = WebUtility.HtmlEncode(project.Name);
 
-            // 3) Notification-Mail vorbereiten
-            var subject = $"Neue Antwort zu Projekt „{projName}“";
-            var body = $"Der User mit der E-Mailadresse „{dto.RespondentEmail}“ " +
-                          $"hat eine Antwort zum Projekt „{projName}“ abgegeben.";
+            // 3) Fragen-Definitionen parsen
+            var questionDefs = JsonConvert
+                .DeserializeObject<List<QuestionDefinitionDto>>(project.QuestionsJson ?? "[]")
+                ?? new List<QuestionDefinitionDto>();
 
-            // 4) Mail senden (fire-and-forget oder await)
-            await _emailCampaignService .SendNotificationAsync(_adminEmail, subject, body);
+            // 4) Antworten parsen
+            var answers = JsonConvert
+                .DeserializeObject<List<ResponseAnswerDto>>(dto.AnswersJson ?? "[]")
+                ?? new List<ResponseAnswerDto>();
 
-            return CreatedAtAction(nameof(GetResponses), new { projectId = projectId }, created);
+            // 5a) Plain-Text bauen
+            var plainTextSb = new StringBuilder();
+            plainTextSb.AppendLine($"Der User mit „{dto.RespondentEmail}“ hat geantwortet:");
+            foreach (var ans in answers)
+            {
+                var qText = questionDefs.FirstOrDefault(q => q.Id == ans.QuestionId)?.Text
+                            ?? $"Frage {ans.QuestionId}";
+                plainTextSb.AppendLine($"- {qText}: {ans.Answer}");
+            }
+
+            // 5b) HTML-Tabelle bauen
+            var htmlSb = new StringBuilder();
+            htmlSb.AppendLine($"<p>Der User mit der E-Mailadresse „{WebUtility.HtmlEncode(dto.RespondentEmail)}“ " +
+                              $"hat eine Antwort zum Projekt „{projName}“ abgegeben.</p>");
+            htmlSb.AppendLine("<table border=\"1\" cellpadding=\"5\" style=\"border-collapse:collapse\">");
+            htmlSb.AppendLine("<thead><tr><th>Frage</th><th>Antwort</th></tr></thead><tbody>");
+            foreach (var ans in answers)
+            {
+                var q = questionDefs.FirstOrDefault(q => q.Id == ans.QuestionId);
+                var questionText = q != null
+                    ? WebUtility.HtmlEncode(q.Text)
+                    : $"Frage-ID {ans.QuestionId}";
+                var answerText = WebUtility.HtmlEncode(ans.Answer);
+                htmlSb.AppendLine($"<tr><td>{questionText}</td><td>{answerText}</td></tr>");
+            }
+            htmlSb.AppendLine("</tbody></table>");
+
+            // 6) Mail verschicken (HTML + PlainText)
+            await _emailCampaignService.SendNotificationAsync(_adminEmail,
+                $"Neue Antwort zu „{projName}“",
+                plainTextSb.ToString(),
+                htmlSb.ToString()
+            );
+
+            return CreatedAtAction(nameof(GetResponses), new { projectId = projectId },created);
         }
+
+
 
 
 

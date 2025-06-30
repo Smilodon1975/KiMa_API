@@ -20,14 +20,9 @@ namespace KiMa_API.Services
         public Task AddSubscriberAsync(string email) => Task.CompletedTask;
         public Task RemoveSubscriberAsync(string email) => Task.CompletedTask;
 
-        public async Task SendCampaignAsync(
-            string campaignName,
-            string subject,
-            string body,
-            string link,
-            IEnumerable<string> recipientEmails,
-            Stream? attachmentStream,
-            string? attachmentFileName)
+
+        public async Task SendCampaignAsync(string campaignName, string subject, string body, string link,
+            IEnumerable<string> recipientEmails, Stream? attachmentStream, string? attachmentFileName)
         {
             // E-Mail-Inhalt
             var htmlBody = $@"
@@ -102,26 +97,22 @@ namespace KiMa_API.Services
         }
 
 
-        public async Task SendNotificationAsync(string to, string subject, string body)
-        {
-            var content = new EmailContent(subject)
-            {
-                PlainText = body,
-                Html = $"<p>{WebUtility.HtmlEncode(body)}</p>"
-            };
-            var recipients = new EmailRecipients(new[] { new EmailAddress(to) });
-            var message = new EmailMessage(_fromAddress, recipients, content);
+        public async Task SendNotificationAsync(string to, string subject, string plainTextBody, string htmlBody)
+                {
+                    var content = new EmailContent(subject)
+                    {
+                        PlainText = plainTextBody,
+                        Html = htmlBody
+                    };
 
-            await _emailClient.SendAsync(WaitUntil.Completed, message);
-        }
+                    var recipients = new EmailRecipients(new[] { new EmailAddress(to) });
+                    var message = new EmailMessage(_fromAddress, recipients, content);
+
+                    await _emailClient.SendAsync(WaitUntil.Completed, message);
+                }
 
 
 
-        private static byte[] ReadAllBytes(Stream stream)
-        {
-            using var ms = new MemoryStream();
-            stream.CopyTo(ms);
-            return ms.ToArray();
-        }
+        
     }
 }
