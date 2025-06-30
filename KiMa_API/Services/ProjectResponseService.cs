@@ -17,7 +17,6 @@ namespace KiMa_API.Services
 
         public async Task<ProjectResponse> SubmitResponseAsync(ProjectResponseDto dto)
         {
-            // 1. Entity aus DTO anlegen
             var entity = new ProjectResponse
             {
                 ProjectId = dto.ProjectId,
@@ -25,11 +24,8 @@ namespace KiMa_API.Services
                 AnswersJson = dto.AnswersJson,
                 SubmittedAt = DateTime.Now,
             };
-
-            // 2. Speichern
             _ctx.Responses.Add(entity);
             await _ctx.SaveChangesAsync();
-
             return entity;
         }
 
@@ -51,5 +47,26 @@ namespace KiMa_API.Services
 
 
         }
+
+        public async Task DeleteAsync(int responseId)
+        {
+            var entity = await _ctx.Responses.FindAsync(responseId);
+            if (entity == null) throw new KeyNotFoundException();
+            _ctx.Responses.Remove(entity);
+            await _ctx.SaveChangesAsync();
+        }
+
+
+        public async Task<ProjectResponse?> GetByIdAsync(int id)
+        {
+            var response = await _ctx.Responses.FindAsync(id);
+            if (response == null)
+            {
+                return null;
+            }
+            return response;
+        }
+
+
     }
 }

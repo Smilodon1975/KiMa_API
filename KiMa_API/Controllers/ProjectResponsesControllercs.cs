@@ -61,9 +61,7 @@ namespace KiMa_API.Controllers
 
 
         [HttpGet("{projectId}/responses/hasResponded")]
-        public async Task<ActionResult<bool>> HasResponded(
-        int projectId,
-        [FromQuery] string email)
+        public async Task<ActionResult<bool>> HasResponded(int projectId, [FromQuery] string email)
         {
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest("E-Mail darf nicht leer sein.");
@@ -71,6 +69,20 @@ namespace KiMa_API.Controllers
             var exists = await _responseService.HasRespondedAsync(projectId, email);
             return Ok(exists);
         }
+
+
+        [HttpDelete("{projectId}/responses/{responseId}")]
+        public async Task<IActionResult> DeleteResponse(int projectId, int responseId)
+        {
+            // Optional: prüfen, ob response zum Projekt gehört
+            var resp = await _responseService.GetByIdAsync(responseId);
+            if (resp == null || resp.ProjectId != projectId)
+                return NotFound();
+
+            await _responseService.DeleteAsync(responseId);
+            return NoContent();
+        }
+
 
     }
 }
