@@ -4,6 +4,7 @@ using KiMa_API.Models.Dto;
 using KiMa_API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text;
 
@@ -50,45 +51,40 @@ namespace KiMa_API.Controllers
                 ?? new List<QuestionDefinitionDto>();
 
             // 4) Antworten parsen
-            var answers = JsonConvert
-                .DeserializeObject<List<ResponseAnswerDto>>(dto.AnswersJson ?? "[]")
-                ?? new List<ResponseAnswerDto>();
+            var answersJ = JArray.Parse(dto.AnswersJson ?? "[]");
+            var answers = answersJ.Select(x => new {
+                QuestionId = (int)x["questionId"]!,
+                // Wenn x["answer"] ein Array ist -> join, sonst ToString()
+                Answer = x["answer"]!.Type == JTokenType.Array
+                    ? string.Join(", ", x["answer"]!.ToObject<List<string>>()!)
+                    : x["answer"]!.ToString()
+            }).ToList();
 
-            // 5a) Plain-Text bauen
-            var plainTextSb = new StringBuilder();
-            plainTextSb.AppendLine($"Der User mit „{dto.RespondentEmail}“ hat geantwortet:");
+            // Baue dann Deine Tabelle:
+            var sb = new StringBuilder();
+            sb.AppendLine(
+                $"<p>Der User mit der E-Mailadresse „{WebUtility.HtmlEncode(dto.RespondentEmail)}“ " +
+                $"hat eine Antwort zum Projekt „{WebUtility.HtmlEncode(projName)}“ abgegeben.</p>");
+            sb.AppendLine("<table border=\"1\" cellpadding=\"5\" style=\"border-collapse:collapse\">");
+            sb.AppendLine("<thead><tr><th>Frage</th><th>Antwort</th></tr></thead><tbody>");
             foreach (var ans in answers)
             {
-                var qText = questionDefs.FirstOrDefault(q => q.Id == ans.QuestionId)?.Text
-                            ?? $"Frage {ans.QuestionId}";
-                plainTextSb.AppendLine($"- {qText}: {ans.Answer}");
+                var qDef = questionDefs.FirstOrDefault(q => q.Id == ans.QuestionId);
+                var qText = qDef != null
+                    ? WebUtility.HtmlEncode(qDef.Text)
+                    : $"Frage #{ans.QuestionId}";
+                sb.AppendLine($"<tr><td>{qText}</td><td>{WebUtility.HtmlEncode(ans.Answer)}</td></tr>");
             }
+            sb.AppendLine("</tbody></table>");
 
-            // 5b) HTML-Tabelle bauen
-            var htmlSb = new StringBuilder();
-            htmlSb.AppendLine($"<p>Der User mit der E-Mailadresse „{WebUtility.HtmlEncode(dto.RespondentEmail)}“ " +
-                              $"hat eine Antwort zum Projekt „{projName}“ abgegeben.</p>");
-            htmlSb.AppendLine("<table border=\"1\" cellpadding=\"5\" style=\"border-collapse:collapse\">");
-            htmlSb.AppendLine("<thead><tr><th>Frage</th><th>Antwort</th></tr></thead><tbody>");
-            foreach (var ans in answers)
-            {
-                var q = questionDefs.FirstOrDefault(q => q.Id == ans.QuestionId);
-                var questionText = q != null
-                    ? WebUtility.HtmlEncode(q.Text)
-                    : $"Frage-ID {ans.QuestionId}";
-                var answerText = WebUtility.HtmlEncode(ans.Answer);
-                htmlSb.AppendLine($"<tr><td>{questionText}</td><td>{answerText}</td></tr>");
-            }
-            htmlSb.AppendLine("</tbody></table>");
+            // Mail senden
+            await _emailCampaignService.SendNotificationAsync(
+                _adminEmail,
+                $"Neue Antwort zu „{WebUtility.HtmlEncode(project.Name)}“",
+                /* plainText */ sb.ToString(),
+                /* html */ sb.ToString());
 
-            // 6) Mail verschicken (HTML + PlainText)
-            await _emailCampaignService.SendNotificationAsync(_adminEmail,
-                $"Neue Antwort zu „{projName}“",
-                plainTextSb.ToString(),
-                htmlSb.ToString()
-            );
-
-            return CreatedAtAction(nameof(GetResponses), new { projectId = projectId },created);
+            return CreatedAtAction(nameof(GetResponses), new { projectId }, created);
         }
 
 

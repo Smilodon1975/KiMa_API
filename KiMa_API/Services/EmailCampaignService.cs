@@ -8,12 +8,14 @@ namespace KiMa_API.Services
     {
         private readonly EmailClient _emailClient;
         private readonly string _fromAddress;
+        private readonly ILogger<EmailCampaignService> _logger;
 
-        public EmailCampaignService(EmailClient emailClient, IConfiguration config)
+        public EmailCampaignService(EmailClient emailClient, IConfiguration config, ILogger<EmailCampaignService> logger)
         {
             _emailClient = emailClient;
             _fromAddress = config["EmailSettings:FromEmail"]
                 ?? throw new InvalidOperationException("Missing EmailSettings:FromEmail");
+            _logger = logger;
         }
 
         // Subscribe/Unsubscribe sind bei ACS nicht nötig, daher No-Op.        
@@ -98,21 +100,36 @@ namespace KiMa_API.Services
 
 
         public async Task SendNotificationAsync(string to, string subject, string plainTextBody, string htmlBody)
+        {
+            var content = new EmailContent(subject)
+            {
+                PlainText = plainTextBody,
+                Html = htmlBody
+            };
+
+            var recipients = new EmailRecipients(new[] { new EmailAddress(to) });
+            var message = new EmailMessage(_fromAddress, recipients, content);
+
+            try
+            {
+                // richtiger Aufruf auf EmailClient.SendAsync
+                var response = await _emailClient.SendAsync(WaitUntil.Completed, message);
+                if (response.Value.Status != EmailSendStatus.Succeeded)
                 {
-                    var content = new EmailContent(subject)
-                    {
-                        PlainText = plainTextBody,
-                        Html = htmlBody
-                    };
-
-                    var recipients = new EmailRecipients(new[] { new EmailAddress(to) });
-                    var message = new EmailMessage(_fromAddress, recipients, content);
-
-                    await _emailClient.SendAsync(WaitUntil.Completed, message);
+                    _logger.LogError(
+                        "Notification-Mail an {To} konnte nicht zugestellt werden: Status {Status}",
+                        to, response.Value.Status);
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Fehler beim Abschicken der Notification-Mail an {To}", to);
+            }
+        }
 
 
-
-        
     }
 }
+
