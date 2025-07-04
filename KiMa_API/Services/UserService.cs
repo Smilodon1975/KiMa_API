@@ -45,27 +45,25 @@ namespace KiMa_API.Services
             var user = await _context.Users.FindAsync(updateDto.Id);
             if (user == null)
                 return false;
+            if (updateDto.UserName != null) user.UserName = updateDto.UserName;
+            //if (!string.IsNullOrWhiteSpace(updateDto.Email)) user.Email = updateDto.Email;
+            if (updateDto.FirstName != null) user.FirstName = updateDto.FirstName;
+            if (updateDto.LastName != null) user.LastName = updateDto.LastName;
+            if (updateDto.Title != null) user.Title = updateDto.Title;
+            if (updateDto.Gender != null) user.Gender = updateDto.Gender;
+            if (updateDto.Status != null) user.Status = updateDto.Status;
 
-            // Aktualisiere nur Felder, die nicht null oder leer sind
-            if (!string.IsNullOrWhiteSpace(updateDto.UserName)) user.UserName = updateDto.UserName;
-            if (!string.IsNullOrWhiteSpace(updateDto.Email)) user.Email = updateDto.Email;
-            if (!string.IsNullOrWhiteSpace(updateDto.FirstName)) user.FirstName = updateDto.FirstName;
-            if (!string.IsNullOrWhiteSpace(updateDto.LastName)) user.LastName = updateDto.LastName;
-            if (!string.IsNullOrWhiteSpace(updateDto.Title)) user.Title = updateDto.Title;
-            if (!string.IsNullOrWhiteSpace(updateDto.Gender)) user.Gender = updateDto.Gender;
-            if (!string.IsNullOrWhiteSpace(updateDto.Status)) user.Status = updateDto.Status;
-
-            if (!string.IsNullOrWhiteSpace(updateDto.PhonePrivate)) user.PhonePrivate = updateDto.PhonePrivate;
-            if (!string.IsNullOrWhiteSpace(updateDto.PhoneMobile)) user.PhoneMobile = updateDto.PhoneMobile;
-            if (!string.IsNullOrWhiteSpace(updateDto.PhoneWork)) user.PhoneWork = updateDto.PhoneWork;
+            if (updateDto.PhonePrivate != null) user.PhonePrivate = updateDto.PhonePrivate;
+            if (updateDto.PhoneMobile != null) user.PhoneMobile = updateDto.PhoneMobile;
+            if (updateDto.PhoneWork != null) user.PhoneWork = updateDto.PhoneWork;
 
             if (updateDto.Age.HasValue) user.Age = updateDto.Age.Value;
             if (updateDto.BirthDate.HasValue) user.BirthDate = updateDto.BirthDate.Value;
 
-            if (!string.IsNullOrWhiteSpace(updateDto.Street)) user.Street = updateDto.Street;
-            if (!string.IsNullOrWhiteSpace(updateDto.Zip)) user.Zip = updateDto.Zip;
-            if (!string.IsNullOrWhiteSpace(updateDto.City)) user.City = updateDto.City;
-            if (!string.IsNullOrWhiteSpace(updateDto.Country)) user.Country = updateDto.Country;
+            if (updateDto.Street != null) user.Street = updateDto.Street;
+            if (updateDto.Zip != null) user.Zip = updateDto.Zip;
+            if (updateDto.City != null) user.City = updateDto.City;
+            if (updateDto.Country != null) user.Country = updateDto.Country;
             if (updateDto.NewsletterSub.HasValue) user.NewsletterSub = updateDto.NewsletterSub.Value;
 
             if (!string.IsNullOrEmpty(updateDto.Password))
